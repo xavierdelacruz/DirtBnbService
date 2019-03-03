@@ -7,5 +7,6 @@ namespace DirtBnBWebAPI.PersistenceServices
 {
     public class SqlServerConnectionManager
     {
+        // Placeholder
     }
 }
