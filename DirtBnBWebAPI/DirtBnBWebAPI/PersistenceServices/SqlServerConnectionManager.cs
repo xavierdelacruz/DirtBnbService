@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Data.SqlClient;
-using MySql.Data;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
     public class SqlServerConnectionManager
     {
-        // Use MySQL for now.
         private static SqlServerConnectionManager _instance;
         private MySql.Data.MySqlClient.MySqlConnection sqlConnection;
 
@@ -24,7 +21,6 @@ namespace DirtBnBWebAPI.PersistenceServices
             var connectionString = "server=127.0.0.1;uid=root;pwd=304project;database=304project";
             try
             {
-                // sqlConnection = new SqlConnection(connectionString);
                 sqlConnection = new MySql.Data.MySqlClient.MySqlConnection();
                 sqlConnection.ConnectionString = connectionString;
                 sqlConnection.Open();

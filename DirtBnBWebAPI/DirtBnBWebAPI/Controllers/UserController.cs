@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
@@ -11,23 +12,18 @@ namespace DirtBnBWebAPI.Controllers
     {
         [Route("api/users")]
         [HttpGet]
-        public IEnumerable<string> GetUsers()
+        public IEnumerable<User> GetUsers()
         {
-            return new string[] { "value1", "value2" };
+            UserPersistenceService userPersistenceService = new UserPersistenceService();
+            return userPersistenceService.GetUsers();
         }
 
         [Route("api/users/{id}")]
         [HttpGet]
         public User Get(long id)
         {
-            User user = new User();
-
-            user.userID = id;
-            user.name = "John";
-            user.emailAddress = "john@example.com";
-            user.phoneNumber = "123-456-7890";
-            user.password = "somepassword";
-
+            UserPersistenceService userPersistenceService = new UserPersistenceService();
+            User user = userPersistenceService.GetUser(id);
             return user;
         }
 
@@ -39,7 +35,7 @@ namespace DirtBnBWebAPI.Controllers
             long id;
             id = userPersistenceService.SaveUser(user);
             user.userID = id;
-            HttpResponseMessage response = Request.CreateResponse(System.Net.HttpStatusCode.Created);
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("users/{0}", id));
             return response;
         }
