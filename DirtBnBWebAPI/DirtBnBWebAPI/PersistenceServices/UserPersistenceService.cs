@@ -42,7 +42,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a POST User call in UserPersistenceService(SaveUser): " + ex);
+                Console.WriteLine("Found an error when performing a GET Users call in UserPersistenceService(GetUsers): " + ex);
                 return null;
             }
         }
@@ -79,7 +79,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a POST User call in UserPersistenceService (SaveUser): " + ex);
+                Console.WriteLine("Found an error when performing a GET User call in UserPersistenceService (GetUser): " + ex);
                 return null;
             }
         }
@@ -101,6 +101,72 @@ namespace DirtBnBWebAPI.PersistenceServices
             {
                 Console.WriteLine("Found an error when performing a POST User call in UserPersistenceService (SaveUser): " + ex);
                 throw new Exception(ex.ToString());
+            }
+        }
+
+        // DELETE User
+        public bool DeleteUser(long id)
+        {
+            MySqlDataReader mySQLReader = null;
+            string slqCommandString = "SELECT * FROM users WHERE UserID = " + id.ToString();
+
+            try
+            {
+                MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                if (mySQLReader.Read())
+                {
+                    mySQLReader.Close();
+
+                    string slqDeleteCommandString = "DELETE FROM users WHERE UserID = " + id.ToString();
+                    MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
+
+                    sqlDeleteCommand.ExecuteNonQuery();
+                    return true;
+                }
+
+                mySQLReader.Close();
+                return false;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a DELETE User call in UserPersistenceService (DeleteUser): " + ex);
+                return false;
+            }
+        }
+
+        // PUT User
+        public bool UpdateUser(long id, User user)
+        {
+            MySqlDataReader mySQLReader = null;
+
+            string slqCommandString = "SELECT * FROM users WHERE UserID = " + id.ToString();
+
+            try
+            {
+                MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                if (mySQLReader.Read())
+                {
+                    mySQLReader.Close();
+
+                    string sqlUpdateCommandString = "UPDATE users SET Name='" + user.name + "', EmailAddress='" + user.emailAddress + "', " +
+                        "PhoneNumber='" + user.phoneNumber + "', Password='" + user.password + "' WHERE UserID=" + id.ToString();                    
+                    MySqlCommand sqlUpdateCommand = new MySqlCommand(sqlUpdateCommandString, sqlConnection);
+
+                    sqlUpdateCommand.ExecuteNonQuery();
+                    return true;
+                }
+
+                mySQLReader.Close();
+                return false;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a PUT User call in UserPersistenceService (UpdateUser): " + ex);
+                return false;
             }
         }
     }

@@ -20,7 +20,7 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/users/{id}")]
         [HttpGet]
-        public User Get(long id)
+        public User GetUser(long id)
         {
             UserPersistenceService userPersistenceService = new UserPersistenceService();
             User user = userPersistenceService.GetUser(id);
@@ -29,7 +29,7 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/users/")]
         [HttpPost]
-        public HttpResponseMessage Post([FromBody]User user)
+        public HttpResponseMessage CreateUser([FromBody]User user)
         {
             UserPersistenceService userPersistenceService = new UserPersistenceService();
             long id;
@@ -42,14 +42,44 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/users/{id}")]
         [HttpPut]
-        public void Put(int id, [FromBody]User user)
+        public HttpResponseMessage UpdateUser(long id, [FromBody]User user)
         {
+            UserPersistenceService userPersistenceService = new UserPersistenceService();
+            bool userExists = false;
+            userExists = userPersistenceService.UpdateUser(id, user);
+
+            HttpResponseMessage response;
+            if (userExists)
+            {
+                response = Request.CreateResponse(HttpStatusCode.NoContent);
+            }
+            else
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+
+            return response;
         }
 
         [Route("api/users/{id}")]
         [HttpDelete]
-        public void Delete(int id)
+        public HttpResponseMessage DeleteUser(long id)
         {
+            UserPersistenceService userPersistenceService = new UserPersistenceService();
+            bool userExists = false;
+            userExists = userPersistenceService.DeleteUser(id);
+
+            HttpResponseMessage response;
+            if (userExists)
+            {
+                response = Request.CreateResponse(HttpStatusCode.NoContent);
+            }
+            else
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+
+            return response;
         }
     }
 }
