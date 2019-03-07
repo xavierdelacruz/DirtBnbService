@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
+using Newtonsoft.Json;
 
 namespace DirtBnBWebAPI.Controllers
 {
@@ -37,6 +38,7 @@ namespace DirtBnBWebAPI.Controllers
             user.userID = id;
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("users/{0}", id));
+            response.Content = new StringContent("Successfully created user:\n" + JsonConvert.SerializeObject(user, Formatting.Indented));
             return response;
         }
 
@@ -57,7 +59,7 @@ namespace DirtBnBWebAPI.Controllers
             {
                 response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-
+            response.Content = new StringContent("Successfully edited user with id: " + id);
             return response;
         }
 
@@ -78,7 +80,7 @@ namespace DirtBnBWebAPI.Controllers
             {
                 response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-
+            response.Content = new StringContent("Successfully edited user with id: " + id);
             return response;
         }
     }
