@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
-using Newtonsoft.Json;
 
 namespace DirtBnBWebAPI.Controllers
 {
@@ -13,19 +11,40 @@ namespace DirtBnBWebAPI.Controllers
     {
         [Route("api/users")]
         [HttpGet]
-        public IEnumerable<User> GetUsers()
+        public HttpResponseMessage GetUsers()
         {
             UserPersistenceService userPersistenceService = new UserPersistenceService();
-            return userPersistenceService.GetUsers();
+            var users = userPersistenceService.GetUsers();
+            HttpResponseMessage response;
+            if (users == null || users.Count.Equals(0))
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No users found.");
+                return response;
+            }
+            response = Request.CreateResponse(HttpStatusCode.OK, users);
+            return response;
         }
 
         [Route("api/users/{id}")]
         [HttpGet]
-        public User GetUser(long id)
+        public HttpResponseMessage GetUser(long id, [FromBody] User userPasswordObject)
         {
             UserPersistenceService userPersistenceService = new UserPersistenceService();
             User user = userPersistenceService.GetUser(id);
-            return user;
+            HttpResponseMessage response;
+            if (user == null)
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "User not found.");
+                return response;
+            }
+
+            if (userPasswordObject.password != user.password)
+            {
+                response = Request.CreateResponse(HttpStatusCode.Unauthorized, "Incorrect password. Please try logging again.");
+                return response;
+            }
+
+            return Request.CreateResponse(HttpStatusCode.OK, user);
         }
 
         [Route("api/users/")]
@@ -33,16 +52,24 @@ namespace DirtBnBWebAPI.Controllers
         public HttpResponseMessage CreateUser([FromBody]User user)
         {
             UserPersistenceService userPersistenceService = new UserPersistenceService();
+            HttpResponseMessage response;
+
+            if (string.IsNullOrEmpty(user.name) || string.IsNullOrEmpty(user.phoneNumber) || string.IsNullOrEmpty(user.emailAddress) || string.IsNullOrEmpty(user.password))
+            {
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "All fields are mandatory. Please try again.");
+                return response;
+            }
+
             long id;
             id = userPersistenceService.SaveUser(user);
             user.userID = id;
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
+            response = Request.CreateResponse(HttpStatusCode.Created, user);
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("users/{0}", id));
-            response.Content = new StringContent("Successfully created user:\n" + JsonConvert.SerializeObject(user, Formatting.Indented));
             return response;
         }
 
         [Route("api/users/{id}")]
+        [HttpPatch]
         [HttpPut]
         public HttpResponseMessage UpdateUser(long id, [FromBody]User user)
         {
@@ -53,14 +80,14 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage response;
             if (userExists)
             {
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                response = Request.CreateResponse(HttpStatusCode.OK, user);
+                return response;
             }
             else
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "User not found.");
+                return response;
             }
-            response.Content = new StringContent("Successfully edited user with id: " + id);
-            return response;
         }
 
         [Route("api/users/{id}")]
@@ -74,14 +101,14 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage response;
             if (userExists)
             {
-                response = Request.CreateResponse(HttpStatusCode.NoContent);
+                response = Request.CreateResponse(HttpStatusCode.OK, "User deleted.");
+                return response;
             }
             else
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound);
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "User not found.");
+                return response;
             }
-            response.Content = new StringContent("Successfully deleted user with id: " + id);
-            return response;
         }
     }
 }

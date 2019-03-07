@@ -15,7 +15,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         }
 
         // GET Users Call
-        public IEnumerable<User> GetUsers()
+        public List<User> GetUsers()
         {
             MySqlDataReader mySQLReader = null;
             List<User> users = new List<User>();
@@ -69,7 +69,6 @@ namespace DirtBnBWebAPI.PersistenceServices
                     user.password = mySQLReader.GetString(4);
 
                     mySQLReader.Close();
-
                     return user;
                 }
 
@@ -117,6 +116,7 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
+
                     mySQLReader.Close();
 
                     string slqDeleteCommandString = "DELETE FROM users WHERE UserID = " + id.ToString();
@@ -136,7 +136,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
-        // PUT User
+        // PATCH User
         public bool UpdateUser(long id, User user)
         {
             MySqlDataReader mySQLReader = null;
@@ -150,6 +150,23 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
+                    if (string.IsNullOrEmpty(user.name))
+                    {
+                        user.name = mySQLReader.GetString(1);
+                    }
+                    if (string.IsNullOrEmpty(user.emailAddress))
+                    {
+                        user.emailAddress = mySQLReader.GetString(2);
+                    }
+                    if (string.IsNullOrEmpty(user.phoneNumber))
+                    {
+                        user.phoneNumber = mySQLReader.GetString(3);
+                    }
+                    if (string.IsNullOrEmpty(user.password))
+                    {
+                        user.password = mySQLReader.GetString(4);
+                    }
+
                     mySQLReader.Close();
 
                     string sqlUpdateCommandString = "UPDATE users SET Name='" + user.name + "', EmailAddress='" + user.emailAddress + "', " +
