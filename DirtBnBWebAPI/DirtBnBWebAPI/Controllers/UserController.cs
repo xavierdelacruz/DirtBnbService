@@ -80,7 +80,7 @@ namespace DirtBnBWebAPI.Controllers
             {
                 response = Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            response.Content = new StringContent("Successfully edited user with id: " + id);
+            response.Content = new StringContent("Successfully deleted user with id: " + id);
             return response;
         }
     }
