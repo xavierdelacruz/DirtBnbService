@@ -120,11 +120,18 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
+                    var email = mySQLReader.GetString(2);
 
                     mySQLReader.Close();
 
-                    string slqDeleteCommandString = "DELETE FROM hosts WHERE UserID = " + id.ToString();
-                    MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
+                    // Use this line IF and ONLY IF YOU DO NOT HAVE an FK constraint. 
+                    // Else, delete the entry from the child table, which will cascade and delete parent entry
+                    // NOTE: ON CASCADE DELETE MUST BE ENABLED.
+                    // string slqDeleteCommandString = "DELETE FROM hosts_fd WHERE UserID = " + id.ToString();
+                    // MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
+
+                    string childslqDeleteCommandString = "DELETE FROM hosts_fd WHERE EmailAddress = '" + email + "'";
+                    MySqlCommand sqlDeleteCommand = new MySqlCommand(childslqDeleteCommandString, sqlConnection);
 
                     sqlDeleteCommand.ExecuteNonQuery();
                     return true;
