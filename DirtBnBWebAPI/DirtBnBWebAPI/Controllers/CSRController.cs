@@ -99,11 +99,11 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/csrs/{id}")]
         [HttpDelete]
-        public HttpResponseMessage DeleteHost(long id)
+        public HttpResponseMessage DeleteCSR(long id)
         {
             CSRPersistenceService csrPersistenceService = new CSRPersistenceService();
             bool userExists = false;
-            userExists = csrPersistenceService.DeleteHost(id);
+            userExists = csrPersistenceService.DeleteCSR(id);
 
             HttpResponseMessage response;
             if (userExists)

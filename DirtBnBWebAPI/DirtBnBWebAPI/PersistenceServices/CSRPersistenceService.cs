@@ -119,8 +119,8 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
-        // DELETE Host
-        public bool DeleteHost(long id)
+        // DELETE CSR
+        public bool DeleteCSR(long id)
         {
             MySqlDataReader mySQLReader = null;
             string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
@@ -160,7 +160,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
-        // PATCH or PUT Host
+        // PATCH or PUT CSR
         public bool UpdateCSR(long id, CSR csr)
         {
             MySqlDataReader mySQLReader = null;
@@ -227,7 +227,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a PUT CSR call in HostPersistenceService: " + ex);
+                Console.WriteLine("Found an error when performing a PUT CSR call in CSRPersistenceService: " + ex);
                 return false;
             }
         }

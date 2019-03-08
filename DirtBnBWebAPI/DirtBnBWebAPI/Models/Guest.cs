@@ -1,6 +1,6 @@
 ﻿namespace DirtBnBWebAPI.Models
 {
-    public class Guest
+    public class Guest : User
     {
     }
 }
