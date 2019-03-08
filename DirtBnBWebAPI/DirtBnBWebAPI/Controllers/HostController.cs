@@ -71,7 +71,7 @@ namespace DirtBnBWebAPI.Controllers
             }
             host.userID = id;
             response = Request.CreateResponse(HttpStatusCode.Created, host);
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("users/{0}", id));
+            response.Headers.Location = new Uri(Request.RequestUri, string.Format("hosts/{0}", id));
             return response;
         }
 

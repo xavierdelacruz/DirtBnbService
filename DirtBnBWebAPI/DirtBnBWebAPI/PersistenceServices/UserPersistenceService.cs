@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
+    [Obsolete("This class only acts a basic template. Do not use it for actual API calls", false)]
     public class UserPersistenceService
     {
         private MySqlConnection sqlConnection;

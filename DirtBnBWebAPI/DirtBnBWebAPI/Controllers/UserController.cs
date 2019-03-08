@@ -7,6 +7,7 @@ using DirtBnBWebAPI.PersistenceServices;
 
 namespace DirtBnBWebAPI.Controllers
 {
+    [Obsolete("This class only acts a basic template. Do not use it for actual API calls", false)]
     public class UserController : ApiController
     {
         [Route("api/users")]

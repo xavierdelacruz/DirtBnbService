@@ -7,6 +7,8 @@ namespace DirtBnBWebAPI.PersistenceServices
 {
     public class HostPersistenceService
     {
+        private readonly string PARENT_TABLE = "hosts";
+        private readonly string CHILD_TABLE = "hosts_fd";
         private MySqlConnection sqlConnection;
 
         public HostPersistenceService()
@@ -20,7 +22,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<Host> hosts = new List<Host>();
 
-            string slqCommandString = "SELECT * FROM hosts";
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
             MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
             try
             {
@@ -28,21 +30,22 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 while (mySQLReader.Read())
                 {
-                    Host host = new Host();
-                    host.userID = mySQLReader.GetInt32(0);
-                    host.name = mySQLReader.GetString(1);
-                    host.emailAddress = mySQLReader.GetString(2);
-                    host.phoneNumber = mySQLReader.GetString(3);
-                    host.password = mySQLReader.GetString(4);
+                    Host host = new Host
+                    {
+                        userID = mySQLReader.GetInt32(0),
+                        name = mySQLReader.GetString(1),
+                        emailAddress = mySQLReader.GetString(2),
+                        phoneNumber = mySQLReader.GetString(3),
+                        password = mySQLReader.GetString(4)
+                    };
                     hosts.Add(host);
-
                 }
                 mySQLReader.Close();
                 return hosts;
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a GET Hosts call in HostPersistenceService(GetHosts): " + ex);
+                Console.WriteLine("Found an error when performing a GET Hosts call in HostPersistenceService: " + ex);
                 return null;
             }
         }
@@ -50,10 +53,10 @@ namespace DirtBnBWebAPI.PersistenceServices
         // GET Host Call
         public Host GetHost(long id)
         {
-            Host host = new Host();
+            
             MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM hosts WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM "+ PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -62,23 +65,23 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-                    host.userID = mySQLReader.GetInt32(0);
-                    host.name = mySQLReader.GetString(1);
-                    host.emailAddress = mySQLReader.GetString(2);
-                    host.phoneNumber = mySQLReader.GetString(3);
-                    host.password = mySQLReader.GetString(4);
-
+                    Host host = new Host
+                    {
+                        userID = mySQLReader.GetInt32(0),
+                        name = mySQLReader.GetString(1),
+                        emailAddress = mySQLReader.GetString(2),
+                        phoneNumber = mySQLReader.GetString(3),
+                        password = mySQLReader.GetString(4)
+                    };
                     mySQLReader.Close();
                     return host;
                 }
-
                 mySQLReader.Close();
-
                 return null;
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a GET Host call in HostPersistenceService (GetHost): " + ex);
+                Console.WriteLine("Found an error when performing a GET Host call in HostPersistenceService: " + ex);
                 return null;
             }
         }
@@ -86,23 +89,30 @@ namespace DirtBnBWebAPI.PersistenceServices
         // POST Host Call
         public long SaveHost(Host host)
         {
-            string childSqlCommandString = "INSERT INTO hosts_fd (EmailAddress, Name) VALUES ('" + host.emailAddress + "','" +
-                host.name + "')";
-            string sqlCommandString = "INSERT INTO hosts (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES (" + host.userID + ",'" +
-                host.name + "','" + host.emailAddress + "','" + host.phoneNumber + "','" + host.password + "')";
+            /// In POST, the child row has to exist - else, we cannot create a row in the parent table due to the FK constraint.
+            string childSqlCommandString = "INSERT INTO " + CHILD_TABLE + " (EmailAddress, Name) VALUES ('" 
+                + host.emailAddress + "','" 
+                + host.name + "')";
+
+            string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES (" 
+                + host.userID + ",'" 
+                + host.name + "','" 
+                + host.emailAddress + "','" 
+                + host.phoneNumber + "','" 
+                + host.password + "')";
 
             MySqlCommand childSqlCommand = new MySqlCommand(childSqlCommandString, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
             try
             {
                 childSqlCommand.ExecuteNonQuery();
-                sqlCommand.ExecuteNonQueryAsync();
+                sqlCommand.ExecuteNonQuery();
                 long id = sqlCommand.LastInsertedId;
                 return id;
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a POST Host call in HostPersistenceService (SaveHost): " + ex);
+                Console.WriteLine("Found an error when performing a POST Host call in HostPersistenceService: " + ex);
                 return -1;
             }
         }
@@ -111,7 +121,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         public bool DeleteHost(long id)
         {
             MySqlDataReader mySQLReader = null;
-            string slqCommandString = "SELECT * FROM hosts WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -120,17 +130,18 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
+                    // This is the PK of the child table.
                     var email = mySQLReader.GetString(2);
 
                     mySQLReader.Close();
 
-                    // Use this line IF and ONLY IF YOU DO NOT HAVE an FK constraint. 
+                    // Use these lines IF and ONLY IF YOU DO NOT HAVE an FK constraint. 
                     // Else, delete the entry from the child table, which will cascade and delete parent entry
                     // NOTE: ON CASCADE DELETE MUST BE ENABLED.
-                    // string slqDeleteCommandString = "DELETE FROM hosts_fd WHERE UserID = " + id.ToString();
+                    // string slqDeleteCommandString = "DELETE FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
                     // MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
 
-                    string childslqDeleteCommandString = "DELETE FROM hosts_fd WHERE EmailAddress = '" + email + "'";
+                    string childslqDeleteCommandString = "DELETE FROM " + CHILD_TABLE + " WHERE EmailAddress = '" + email + "'";
                     MySqlCommand sqlDeleteCommand = new MySqlCommand(childslqDeleteCommandString, sqlConnection);
 
                     sqlDeleteCommand.ExecuteNonQuery();
@@ -142,17 +153,17 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a DELETE Host call in HostPersistenceService (DeleteHost): " + ex);
+                Console.WriteLine("Found an error when performing a DELETE Host call in HostPersistenceService: " + ex);
                 return false;
             }
         }
 
-        // PATCH Host
+        // PATCH or PUT Host
         public bool UpdateHost(long id, Host host)
         {
             MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM hosts WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -166,7 +177,11 @@ namespace DirtBnBWebAPI.PersistenceServices
                     {
                         host.name = mySQLReader.GetString(1);
                     }
+
+                    // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
+                    // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
                     var oldEmail = mySQLReader.GetString(2);
+
                     if (string.IsNullOrEmpty(host.emailAddress))
                     {
                         host.emailAddress = mySQLReader.GetString(2);
@@ -182,9 +197,21 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                     mySQLReader.Close();
 
-                    string childSqlUpdateCommandString = "UPDATE hosts_fd SET EmailAddress='" + host.emailAddress + "', Name='" + host.name + "' WHERE EmailAddress = '" + oldEmail + "'";
-                    string sqlUpdateCommandString = "UPDATE hosts SET Name='" + host.name + "', " +
-                        "PhoneNumber='" + host.phoneNumber + "', Password='" + host.password + "' WHERE UserID=" + id.ToString();
+                    // In PUT, if an FK is updated in the child table, it will also get updated on the parent table.
+                    // HOWEVER, non-FK attributes will NOT get updated, so you will still need to update it in the parent table in your SQL query.
+                    // In this case, Name is not an FK, and will not get updated in the parent table - but if we want integrity, we will need
+                    // to turn this into an FK, OR update it manually. Note, we are using the latter.
+                    string childSqlUpdateCommandString = "UPDATE " + CHILD_TABLE 
+                        + " SET EmailAddress='" + host.emailAddress 
+                        + "', Name='" + host.name 
+                        + "' WHERE EmailAddress = '" + oldEmail 
+                        + "'";
+
+                    string sqlUpdateCommandString = "UPDATE " + PARENT_TABLE 
+                        + " SET Name='" + host.name + "', " 
+                        + "PhoneNumber='" + host.phoneNumber 
+                        + "', Password='" + host.password 
+                        + "' WHERE UserID=" + id.ToString();
 
                     MySqlCommand childMySqlCommand = new MySqlCommand(childSqlUpdateCommandString, sqlConnection);
                     MySqlCommand sqlUpdateCommand = new MySqlCommand(sqlUpdateCommandString, sqlConnection);
@@ -199,7 +226,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a PUT Host call in HostPersistenceService (UpdateHost): " + ex);
+                Console.WriteLine("Found an error when performing a PUT Host call in HostPersistenceService: " + ex);
                 return false;
             }
         }
