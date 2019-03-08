@@ -8,6 +8,7 @@ namespace DirtBnBWebAPI.PersistenceServices
     [Obsolete("This class only acts a basic template. Do not use it for actual API calls", false)]
     public class UserPersistenceService
     {
+        private readonly string PARENT_TABLE = "users";
         private MySqlConnection sqlConnection;
 
         public UserPersistenceService()
@@ -21,7 +22,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<User> users = new List<User>();
 
-            string slqCommandString = "SELECT * FROM users";
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
             MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
             try
             {
@@ -29,12 +30,14 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 while (mySQLReader.Read())
                 {
-                    User user = new User();
-                    user.userID = mySQLReader.GetInt32(0);
-                    user.name = mySQLReader.GetString(1);
-                    user.emailAddress = mySQLReader.GetString(2);
-                    user.phoneNumber = mySQLReader.GetString(3);
-                    user.password = mySQLReader.GetString(4);
+                    User user = new User
+                    {
+                        userID = mySQLReader.GetInt32(0),
+                        name = mySQLReader.GetString(1),
+                        emailAddress = mySQLReader.GetString(2),
+                        phoneNumber = mySQLReader.GetString(3),
+                        password = mySQLReader.GetString(4)
+                    };
                     users.Add(user);
 
                 }
@@ -43,7 +46,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a GET Users call in UserPersistenceService(GetUsers): " + ex);
+                Console.WriteLine("Found an error when performing a GET Users call in UserPersistenceService: " + ex);
                 return null;
             }
         }
@@ -51,10 +54,9 @@ namespace DirtBnBWebAPI.PersistenceServices
         // GET User Call
         public User GetUser(long id)
         {
-            User user = new User();
             MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM users WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -63,11 +65,14 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-                    user.userID = mySQLReader.GetInt32(0);
-                    user.name = mySQLReader.GetString(1);
-                    user.emailAddress = mySQLReader.GetString(2);
-                    user.phoneNumber = mySQLReader.GetString(3);
-                    user.password = mySQLReader.GetString(4);
+                    User user = new User
+                    {
+                        userID = mySQLReader.GetInt32(0),
+                        name = mySQLReader.GetString(1),
+                        emailAddress = mySQLReader.GetString(2),
+                        phoneNumber = mySQLReader.GetString(3),
+                        password = mySQLReader.GetString(4)
+                    };
 
                     mySQLReader.Close();
                     return user;
@@ -79,7 +84,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a GET User call in UserPersistenceService (GetUser): " + ex);
+                Console.WriteLine("Found an error when performing a GET User call in UserPersistenceService: " + ex);
                 return null;
             }
         }
@@ -87,8 +92,12 @@ namespace DirtBnBWebAPI.PersistenceServices
         // POST User Call
         public long SaveUser(User user)
         {
-            string sqlCommandString = "INSERT INTO users (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES (" + user.userID + ",'" +
-                user.name + "','" + user.emailAddress + "','" + user.phoneNumber + "','" + user.password + "')";
+            string sqlCommandString = "INSERT INTO users (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES (" 
+                + user.userID + ",'" 
+                + user.name + "','" 
+                + user.emailAddress + "','" 
+                + user.phoneNumber + "','" 
+                + user.password + "')";
 
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
             try
@@ -99,8 +108,8 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a POST User call in UserPersistenceService (SaveUser): " + ex);
-                throw new Exception(ex.ToString());
+                Console.WriteLine("Found an error when performing a POST User call in UserPersistenceService: " + ex);
+                return -1;
             }
         }
 
@@ -108,7 +117,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         public bool DeleteUser(long id)
         {
             MySqlDataReader mySQLReader = null;
-            string slqCommandString = "SELECT * FROM users WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -117,22 +126,18 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-
                     mySQLReader.Close();
-
-                    string slqDeleteCommandString = "DELETE FROM users WHERE UserID = " + id.ToString();
+                    string slqDeleteCommandString = "DELETE FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
                     MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
-
                     sqlDeleteCommand.ExecuteNonQuery();
                     return true;
                 }
-
                 mySQLReader.Close();
                 return false;
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a DELETE User call in UserPersistenceService (DeleteUser): " + ex);
+                Console.WriteLine("Found an error when performing a DELETE User call in UserPersistenceService: " + ex);
                 return false;
             }
         }
@@ -142,7 +147,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         {
             MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM users WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
 
             try
             {
@@ -170,8 +175,12 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                     mySQLReader.Close();
 
-                    string sqlUpdateCommandString = "UPDATE users SET Name='" + user.name + "', EmailAddress='" + user.emailAddress + "', " +
-                        "PhoneNumber='" + user.phoneNumber + "', Password='" + user.password + "' WHERE UserID=" + id.ToString();                    
+                    string sqlUpdateCommandString = "UPDATE " + PARENT_TABLE +
+                        " SET Name='" + user.name 
+                        + "', EmailAddress='" + user.emailAddress 
+                        + "', " + "PhoneNumber='" + user.phoneNumber 
+                        + "', Password='" + user.password 
+                        + "' WHERE UserID=" + id.ToString();                    
                     MySqlCommand sqlUpdateCommand = new MySqlCommand(sqlUpdateCommandString, sqlConnection);
 
                     sqlUpdateCommand.ExecuteNonQuery();
@@ -183,7 +192,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a PUT User call in UserPersistenceService (UpdateUser): " + ex);
+                Console.WriteLine("Found an error when performing a PUT User call in UserPersistenceService: " + ex);
                 return false;
             }
         }

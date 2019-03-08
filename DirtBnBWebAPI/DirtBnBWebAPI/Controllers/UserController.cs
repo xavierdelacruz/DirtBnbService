@@ -55,17 +55,24 @@ namespace DirtBnBWebAPI.Controllers
             UserPersistenceService userPersistenceService = new UserPersistenceService();
             HttpResponseMessage response;
 
-            if (string.IsNullOrEmpty(user.name) || string.IsNullOrEmpty(user.phoneNumber) || string.IsNullOrEmpty(user.emailAddress) || string.IsNullOrEmpty(user.password))
+            if (string.IsNullOrEmpty(user.name) 
+                || string.IsNullOrEmpty(user.phoneNumber) 
+                || string.IsNullOrEmpty(user.emailAddress) 
+                || string.IsNullOrEmpty(user.password))
             {
                 response = Request.CreateResponse(HttpStatusCode.BadRequest, "All fields are mandatory. Please try again.");
                 return response;
             }
 
-            long id;
-            id = userPersistenceService.SaveUser(user);
+            var id = userPersistenceService.SaveUser(user);
+            if (id < 0)
+            {
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A Guest with the same email address has already been created");
+                return response;
+            }
             user.userID = id;
             response = Request.CreateResponse(HttpStatusCode.Created, user);
-            response.Headers.Location = new Uri(Request.RequestUri, string.Format("users/{0}", id));
+            response.Headers.Location = new Uri(Request.RequestUri, string.Format("guests/{0}", id));
             return response;
         }
 
