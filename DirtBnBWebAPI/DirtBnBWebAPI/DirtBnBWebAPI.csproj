@@ -173,12 +173,19 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HostController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CSR.cs" />
+    <Compile Include="Models\Guest.cs" />
+    <Compile Include="Models\Host.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Controllers\UserController.cs" />
+    <Compile Include="PersistenceServices\CSRPersistenceService.cs" />
+    <Compile Include="PersistenceServices\GuestPersistenceService.cs" />
+    <Compile Include="PersistenceServices\HostPersistenceService.cs" />
     <Compile Include="PersistenceServices\SqlServerConnectionManager.cs" />
     <Compile Include="PersistenceServices\UserPersistenceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
