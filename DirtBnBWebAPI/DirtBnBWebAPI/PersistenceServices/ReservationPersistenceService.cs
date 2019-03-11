@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
 
@@ -23,8 +24,11 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<Reservation> reservations = new List<Reservation>();
 
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
-            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            string sqlCommandString = "SELECT * FROM " + PARENT_TABLE + "," + CHILD_TABLE + 
+                " WHERE(" + PARENT_TABLE + ".startDateTime = " + CHILD_TABLE + ".startDateTime) AND(" +
+                PARENT_TABLE + ".endDateTime = " + CHILD_TABLE + ".endDateTime)";
+            MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
+            Debug.WriteLine(sqlCommandString);
             try
             {
                 mySQLReader = sqlCommand.ExecuteReader();
@@ -38,9 +42,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         accommodationID = mySQLReader.GetInt32(2),
                         paymentID = mySQLReader.GetInt32(3),
                         startDateTime = mySQLReader.GetDateTime(4),
-                        endDateTime = mySQLReader.GetDateTime(5)
-                        // TODO: get reservation length from fd table
-                        //reservationLength = mySQLReader.GetInt32(0)
+                        endDateTime = mySQLReader.GetDateTime(5),
+                        reservationLength = (int) mySQLReader["reservationLength"]
                     };
                     reservations.Add(reservation);
                 }
@@ -59,9 +62,11 @@ namespace DirtBnBWebAPI.PersistenceServices
         {
 
             MySqlDataReader mySQLReader = null;
-
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE ReservationID = " + id.ToString();
-
+            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + "," + CHILD_TABLE +
+                " WHERE(" + PARENT_TABLE + ".startDateTime = " + CHILD_TABLE + ".startDateTime) AND(" +
+                PARENT_TABLE + ".endDateTime = " + CHILD_TABLE + ".endDateTime) AND(" +
+                PARENT_TABLE + ".ReservationID = " + id.ToString() + ")";
+            Debug.WriteLine(slqCommandString);
             try
             {
                 MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
@@ -76,9 +81,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         accommodationID = mySQLReader.GetInt32(2),
                         paymentID = mySQLReader.GetInt32(3),
                         startDateTime = mySQLReader.GetDateTime(4),
-                        endDateTime = mySQLReader.GetDateTime(5)
-                        // TODO: get reservation length from fd table
-                        //reservationLength = mySQLReader.GetInt32(0)
+                        endDateTime = mySQLReader.GetDateTime(5),
+                        reservationLength = (int)mySQLReader["reservationLength"]
                     };
                     mySQLReader.Close();
                     return reservation;
@@ -96,32 +100,44 @@ namespace DirtBnBWebAPI.PersistenceServices
         // POST Reservation Call
         public long SaveReservation(Reservation reservation)
         {
-            /// Create child tuple if doesn't exist already
             string childSqlCommandStringPeriod = "INSERT INTO " + CHILD_TABLE + " VALUES ('"
-                + reservation.startDateTime + "','"
-                + reservation.endDateTime + "','"
+                + reservation.startDateTime.ToString("yyyy'-'MM'-'dd") + "','"
+                + reservation.endDateTime.ToString("yyyy'-'MM'-'dd") + "','"
                 // TODO: add logic to calculate reservation length rather than requiring it be specified
                 + reservation.reservationLength + "')";
+            Debug.WriteLine(childSqlCommandStringPeriod);
 
             string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " VALUES ("
                 + reservation.reservationID + ",'"
                 + reservation.guestUserID + "','"
                 + reservation.accommodationID + "','"
                 + reservation.paymentID + "','"
-                + reservation.startDateTime + "','"
-                + reservation.endDateTime + "')";
+                + reservation.startDateTime.ToString("yyyy'-'MM'-'dd") + "','"
+                + reservation.endDateTime.ToString("yyyy'-'MM'-'dd") + "')";
+            Debug.WriteLine(sqlCommandString);
 
             MySqlCommand childSqlCommandPeriod = new MySqlCommand(childSqlCommandStringPeriod, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
+
             try
             {
-                childSqlCommandPeriod.ExecuteNonQuery(); // TODO: maybe catch and suppress this if already in db
+                // TODO: maybe catch the case where the keys are the same, but the value is different, if not determining length programmatically
+                childSqlCommandPeriod.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Child tuple already present due to FD; skipping insertion of child tuple.");
+            }
+
+            try
+            {
                 sqlCommand.ExecuteNonQuery();
                 long id = sqlCommand.LastInsertedId;
                 return id;
             }
             catch (MySqlException ex)
             {
+                Debug.WriteLine(ex);
                 Console.WriteLine("Found an error when performing a POST Reservation call in ReservationPersistenceService: " + ex);
                 return -1;
             }
