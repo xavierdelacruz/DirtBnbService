@@ -90,7 +90,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         // POST Guest Call
         public long SaveGuest(Guest guest)
         {
-            /// In POST, the child row has to exist - else, we cannot create a row in the parent table due to the FK constraint.
+            // In POST, the child row has to exist - else, we cannot create a row in the parent table due to the FK constraint.
             string childSqlCommandString = "INSERT INTO " + CHILD_TABLE + " (EmailAddress, Name) VALUES ('"
                 + guest.emailAddress + "','"
                 + guest.name + "')";
@@ -227,7 +227,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a PUT Guest call in GuestPersistenceService: " + ex);
-                return false;
+                throw ex;
             }
         }
     }

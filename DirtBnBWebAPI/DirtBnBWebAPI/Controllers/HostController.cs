@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
+using MySql.Data.MySqlClient;
 
 namespace DirtBnBWebAPI.Controllers
 {
@@ -66,7 +67,7 @@ namespace DirtBnBWebAPI.Controllers
             var id = hostPersistenceService.SaveHost(host);
             if (id < 0)
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A user with the same email address has already been created");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A user with the same email address has already been created.");
                 return response;
             }
             host.userID = id;
@@ -82,17 +83,23 @@ namespace DirtBnBWebAPI.Controllers
         {
             HostPersistenceService hostPersistenceService = new HostPersistenceService();
             bool userExists = false;
-            userExists = hostPersistenceService.UpdateHost(id, host);
-
             HttpResponseMessage response;
-            if (userExists)
+            try
             {
-                response = Request.CreateResponse(HttpStatusCode.OK, host);
-                return response;
+                userExists = hostPersistenceService.UpdateHost(id, host); if (userExists)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.OK, host);
+                    return response;
+                }
+                else
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "Guest not found.");
+                    return response;
+                }
             }
-            else
+            catch (MySqlException ex)
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "Host not found.");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "The email is already in use. Please try again.");
                 return response;
             }
         }
