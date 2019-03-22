@@ -63,6 +63,84 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
+        // GET Accommodations Call
+        public List<AccommodationAvg> GetAccommodationsAveragePriceOfAllCities()
+        {
+            MySqlDataReader mySQLReader = null;
+            List<AccommodationAvg> accommodationsAvg = new List<AccommodationAvg>();
+
+            string slqCommandString = "SELECT c.City, c.Province, AVG(p.PricePerNight) " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode " +
+                "GROUP BY c.City, c.Province " +
+                "ORDER BY c.City";
+
+            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            try
+            {
+                mySQLReader = sqlCommand.ExecuteReader();
+                
+
+                while (mySQLReader.Read())
+                {
+                    AccommodationAvg accommodationAverage = new AccommodationAvg()
+                    {
+                        city = mySQLReader.GetString(0),
+                        province = mySQLReader.GetString(1),
+                        avgAccommodation = mySQLReader.GetInt32(2)
+                    };
+                accommodationsAvg.Add(accommodationAverage);
+                }
+                mySQLReader.Close();
+                // mySQLChildReader.Close();
+                return accommodationsAvg;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        // GET Accommodations Call
+        public AccommodationAvg GetAccommodationsAveragePriceOfCity(string city, string province)
+        {
+            MySqlDataReader mySQLReader = null;
+
+            string slqCommandString = "SELECT c.City, c.Province, AVG(p.PricePerNight) " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode " +
+                "AND c.City LIKE " + "'%" + city + "%' " +
+                "AND c.Province LIKE " + "'%" + province + "%' " +
+                "GROUP BY c.City, c.Province " +
+                "ORDER BY c.City";
+
+            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            try
+            {
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                if (mySQLReader.Read())
+                {
+                    AccommodationAvg accommodationAverage = new AccommodationAvg()
+                    {
+                        city = mySQLReader.GetString(0),
+                        province = mySQLReader.GetString(1),
+                        avgAccommodation = mySQLReader.GetInt32(2)
+                    };
+                    mySQLReader.Close();
+                    return accommodationAverage;
+                }
+                mySQLReader.Close();
+                return null;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
         // GET Accommodation Call
         public Accommodation GetAccommodation(long id)
         {

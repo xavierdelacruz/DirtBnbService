@@ -18,10 +18,42 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage response;
             if (accommodations == null || accommodations.Count.Equals(0))
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "No acc found.");
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found.");
                 return response;
             }
             response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
+            return response;
+        }
+
+        [Route("api/accommodations/cityaverages")]
+        [HttpGet]
+        public HttpResponseMessage GetAccommodationAverages()
+        {
+            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
+            var accommodations = accommodationPersistenceService.GetAccommodationsAveragePriceOfAllCities();
+            HttpResponseMessage response;
+            if (accommodations == null || accommodations.Count.Equals(0))
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodation averages found for cities.");
+                return response;
+            }
+            response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
+            return response;
+        }
+
+        [Route("api/accommodations/cityaverage")]
+        [HttpGet]
+        public HttpResponseMessage GetAccommodationAveragesOfCity([FromBody]Accommodation accommodation)
+        {
+            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
+            var accommodationsAvg = accommodationPersistenceService.GetAccommodationsAveragePriceOfCity(accommodation.city, accommodation.province);
+            HttpResponseMessage response;
+            if (accommodationsAvg == null)
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodation average found from city: " + accommodation.city);
+                return response;
+            }
+            response = Request.CreateResponse(HttpStatusCode.OK, accommodationsAvg);
             return response;
         }
 
