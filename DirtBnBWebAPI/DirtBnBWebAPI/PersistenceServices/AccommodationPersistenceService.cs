@@ -63,7 +63,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
-        // GET Accommodations Call
+        // GET Accommodations Average Price per City Call
         public List<AccommodationAvg> GetAccommodationsAveragePriceOfAllCities()
         {
             MySqlDataReader mySQLReader = null;
@@ -102,7 +102,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
-        // GET Accommodations Call
+        // GET Accommodations Avg Price of a City Call
         public AccommodationAvg GetAccommodationsAveragePriceOfCity(string city, string province)
         {
             MySqlDataReader mySQLReader = null;
