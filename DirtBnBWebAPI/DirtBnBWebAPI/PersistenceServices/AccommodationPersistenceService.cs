@@ -87,7 +87,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                     {
                         city = mySQLReader.GetString(0),
                         province = mySQLReader.GetString(1),
-                        avgAccommodation = mySQLReader.GetInt32(2)
+                        avgAccommodationPrice = mySQLReader.GetInt32(2)
                     };
                 accommodationsAvg.Add(accommodationAverage);
                 }
@@ -126,7 +126,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                     {
                         city = mySQLReader.GetString(0),
                         province = mySQLReader.GetString(1),
-                        avgAccommodation = mySQLReader.GetInt32(2)
+                        avgAccommodationPrice = mySQLReader.GetInt32(2)
                     };
                     mySQLReader.Close();
                     return accommodationAverage;

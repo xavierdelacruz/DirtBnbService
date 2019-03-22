@@ -9,6 +9,6 @@ namespace DirtBnBWebAPI.Models
     {
         public string city { get; set; }
         public string province { get; set; }
-        public long avgAccommodation { get; set; }
+        public long avgAccommodationPrice { get; set; }
     }
 }
