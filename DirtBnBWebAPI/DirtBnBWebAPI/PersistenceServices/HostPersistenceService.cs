@@ -22,7 +22,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<Host> hosts = new List<Host>();
 
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress";
             MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
             try
             {
@@ -33,10 +33,10 @@ namespace DirtBnBWebAPI.PersistenceServices
                     Host host = new Host
                     {
                         userID = mySQLReader.GetInt32(0),
-                        name = mySQLReader.GetString(1),
-                        emailAddress = mySQLReader.GetString(2),
-                        phoneNumber = mySQLReader.GetString(3),
-                        password = mySQLReader.GetString(4)
+                        emailAddress = mySQLReader.GetString(1),
+                        phoneNumber = mySQLReader.GetString(2),
+                        password = mySQLReader.GetString(3),
+                        name = mySQLReader.GetString(4),
                     };
                     hosts.Add(host);
                 }
@@ -53,10 +53,9 @@ namespace DirtBnBWebAPI.PersistenceServices
         // GET Host Call
         public Host GetHost(long id)
         {
-            
-            MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM "+ PARENT_TABLE + " WHERE UserID = " + id.ToString();
+            MySqlDataReader mySQLReader = null;
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress AND UserID = " + id.ToString();
 
             try
             {
@@ -68,10 +67,10 @@ namespace DirtBnBWebAPI.PersistenceServices
                     Host host = new Host
                     {
                         userID = mySQLReader.GetInt32(0),
-                        name = mySQLReader.GetString(1),
-                        emailAddress = mySQLReader.GetString(2),
-                        phoneNumber = mySQLReader.GetString(3),
-                        password = mySQLReader.GetString(4)
+                        emailAddress = mySQLReader.GetString(1),
+                        phoneNumber = mySQLReader.GetString(2),
+                        password = mySQLReader.GetString(3),
+                        name = mySQLReader.GetString(4),
                     };
                     mySQLReader.Close();
                     return host;
@@ -90,15 +89,14 @@ namespace DirtBnBWebAPI.PersistenceServices
         public long SaveHost(Host host)
         {
             /// In POST, the child row has to exist - else, we cannot create a row in the parent table due to the FK constraint.
-            string childSqlCommandString = "INSERT INTO " + CHILD_TABLE + " (EmailAddress, Name) VALUES ('" 
-                + host.emailAddress + "','" 
+            string childSqlCommandString = "INSERT INTO " + CHILD_TABLE + " (EmailAddress, Name) VALUES ('"
+                + host.emailAddress + "','"
                 + host.name + "')";
 
-            string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES (" 
-                + host.userID + ",'" 
-                + host.name + "','" 
-                + host.emailAddress + "','" 
-                + host.phoneNumber + "','" 
+            string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, EmailAddress, PhoneNumber, Password) VALUES ("
+                + host.userID + ",'"
+                + host.emailAddress + "','"
+                + host.phoneNumber + "','"
                 + host.password + "')";
 
             MySqlCommand childSqlCommand = new MySqlCommand(childSqlCommandString, sqlConnection);
@@ -131,7 +129,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                 if (mySQLReader.Read())
                 {
                     // This is the PK of the child table.
-                    var email = mySQLReader.GetString(2);
+                    var email = mySQLReader.GetString(1);
 
                     mySQLReader.Close();
 
@@ -162,8 +160,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         public bool UpdateHost(long id, Host host)
         {
             MySqlDataReader mySQLReader = null;
-
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress AND p.UserID = " + id.ToString();
 
             try
             {
@@ -173,26 +170,25 @@ namespace DirtBnBWebAPI.PersistenceServices
                 
                 if (mySQLReader.Read())
                 {
-                    if (string.IsNullOrEmpty(host.name))
-                    {
-                        host.name = mySQLReader.GetString(1);
-                    }
-
                     // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
                     // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
-                    var oldEmail = mySQLReader.GetString(2);
+                    var oldEmail = mySQLReader.GetString(1);
 
                     if (string.IsNullOrEmpty(host.emailAddress))
                     {
-                        host.emailAddress = mySQLReader.GetString(2);
+                        host.emailAddress = mySQLReader.GetString(1);
                     }
                     if (string.IsNullOrEmpty(host.phoneNumber))
                     {
-                        host.phoneNumber = mySQLReader.GetString(3);
+                        host.phoneNumber = mySQLReader.GetString(2);
                     }
                     if (string.IsNullOrEmpty(host.password))
                     {
-                        host.password = mySQLReader.GetString(4);
+                        host.password = mySQLReader.GetString(3);
+                    }
+                    if (string.IsNullOrEmpty(host.name))
+                    {
+                        host.name = mySQLReader.GetString(4);
                     }
 
                     mySQLReader.Close();
@@ -201,16 +197,15 @@ namespace DirtBnBWebAPI.PersistenceServices
                     // HOWEVER, non-FK attributes will NOT get updated, so you will still need to update it in the parent table in your SQL query.
                     // In this case, Name is not an FK, and will not get updated in the parent table - but if we want integrity, we will need
                     // to turn this into an FK, OR update it manually. Note, we are using the latter.
-                    string childSqlUpdateCommandString = "UPDATE " + CHILD_TABLE 
-                        + " SET EmailAddress='" + host.emailAddress 
-                        + "', Name='" + host.name 
-                        + "' WHERE EmailAddress = '" + oldEmail 
+                    string childSqlUpdateCommandString = "UPDATE " + CHILD_TABLE
+                        + " SET EmailAddress='" + host.emailAddress
+                        + "', Name='" + host.name
+                        + "' WHERE EmailAddress = '" + oldEmail
                         + "'";
 
-                    string sqlUpdateCommandString = "UPDATE " + PARENT_TABLE 
-                        + " SET Name='" + host.name + "', " 
-                        + "PhoneNumber='" + host.phoneNumber 
-                        + "', Password='" + host.password 
+                    string sqlUpdateCommandString = "UPDATE " + PARENT_TABLE
+                        + " SET PhoneNumber='" + host.phoneNumber
+                        + "', Password='" + host.password
                         + "' WHERE UserID=" + id.ToString();
 
                     MySqlCommand childMySqlCommand = new MySqlCommand(childSqlUpdateCommandString, sqlConnection);
