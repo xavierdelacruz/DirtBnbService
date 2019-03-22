@@ -23,14 +23,15 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<Accommodation> accommodations = new List<Accommodation>();
 
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
+            string slqCommandString = "SELECT p.*, c.City, c.Street, c.Province FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.PostalCode = c.PostalCode";
             MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
             try
             {
                 mySQLReader = sqlCommand.ExecuteReader();
 
+
                 while (mySQLReader.Read())
-                {
+                {         
                     Accommodation accommodation = new Accommodation
                     {
                         accommodationID = mySQLReader.GetInt32(0),
@@ -44,6 +45,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                         houseNumber = mySQLReader.GetString(8),
                         hostUserID = mySQLReader.GetInt32(9),
                         postalCode = mySQLReader.GetString(10),
+
                         city = mySQLReader.GetString(11),
                         street = mySQLReader.GetString(12),
                         province = mySQLReader.GetString(13)
@@ -51,6 +53,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                     accommodations.Add(accommodation);
                 }
                 mySQLReader.Close();
+                // mySQLChildReader.Close();
                 return accommodations;
             }
             catch (MySqlException ex)
@@ -64,16 +67,17 @@ namespace DirtBnBWebAPI.PersistenceServices
         public Accommodation GetAccommodation(long id)
         {
             MySqlDataReader mySQLReader = null;
-
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE AccommodationID = " + id.ToString();
+            string slqCommandString = "SELECT p.*, c.City, c.Street, c.Province FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.PostalCode = c.PostalCode AND p.AccommodationID = " + id.ToString();
 
             try
             {
                 MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
                 mySQLReader = sqlCommand.ExecuteReader();
+                
 
                 if (mySQLReader.Read())
                 {
+
                     Accommodation accommodation = new Accommodation
                     {
                         accommodationID = mySQLReader.GetInt32(0),
@@ -86,7 +90,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         pricePerNight = mySQLReader.GetInt32(7),
                         houseNumber = mySQLReader.GetString(8),
                         hostUserID = mySQLReader.GetInt32(9),
-                        postalCode = mySQLReader.GetString(10),
+                        postalCode = mySQLReader.GetString(10),     
+                        
                         city = mySQLReader.GetString(11),
                         street = mySQLReader.GetString(12),
                         province = mySQLReader.GetString(13)
@@ -112,10 +117,10 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + accomodation.postalCode + "','"
                 + accomodation.city + "','"
                 + accomodation.street + "','"
-                + accomodation.province + "')"; ;
+                + accomodation.province + "')";
 
             string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (AccommodationID, Parking, Wifi, TV, AirConditioning, " +
-                "GeneralAppliances, BedSize, PricePerNight, HouseNumber, HostUserID, PostalCode, City, Street, Province) VALUES ("
+                "GeneralAppliances, BedSize, PricePerNight, HouseNumber, HostUserID, PostalCode) VALUES ("
                 + accomodation.accommodationID + ","
                 + accomodation.parking + ","
                 + accomodation.wifi + ","
@@ -126,11 +131,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + accomodation.pricePerNight + ",'"
                 + accomodation.houseNumber + "',"
                 + accomodation.hostUserID + ",'"
-                + accomodation.postalCode + "','"
-                + accomodation.city + "','"
-                + accomodation.street + "','"
-                + accomodation.province + "')";
-
+                + accomodation.postalCode + "')";
+              
             MySqlCommand childSqlCommandPostalCode = new MySqlCommand(childSqlCommandStringPostalCode, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
             try
@@ -160,24 +162,9 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-                    // This is the PK of the child table.
-                    // var postalCode = mySQLReader.GetString(10);
-
                     mySQLReader.Close();
-
-                    // Use these lines IF and ONLY IF YOU DO HAVE an FK constraint and DO NOT NEED TO DELETE tuples from the child table(s). 
-                    // Else, delete the entry from the child table, which will cascade and delete parent entry
-                    // NOTE: ON CASCADE DELETE MUST BE ENABLED.
                     string slqDeleteCommandString = "DELETE FROM " + PARENT_TABLE + " WHERE AccommodationID = " + id.ToString();
                     MySqlCommand sqlDeleteCommand = new MySqlCommand(slqDeleteCommandString, sqlConnection);
-
-                    //string childslqDeleteCommandStringCity = "DELETE FROM " + CHILD_TABLE_CITY + " WHERE PostalCode = '" + postalCode + "'";
-                    //string childslqDeleteCommandStringStreet = "DELETE FROM " + CHILD_TABLE_STREET + " WHERE PostalCode = '" + postalCode + "'";
-                    //string childslqDeleteCommandStringProvince = "DELETE FROM " + CHILD_TABLE_PROVINCE + " WHERE PostalCode = '" + postalCode + "'";
-                    //MySqlCommand sqlDeleteCommandCity = new MySqlCommand(childslqDeleteCommandStringCity, sqlConnection);
-                    //MySqlCommand sqlDeleteCommandStreet = new MySqlCommand(childslqDeleteCommandStringStreet, sqlConnection);
-                    //MySqlCommand sqlDeleteCommandProvince = new MySqlCommand(childslqDeleteCommandStringProvince, sqlConnection);
-
                     sqlDeleteCommand.ExecuteNonQuery();
                     return true;
                 }
@@ -197,8 +184,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         {
             MySqlDataReader mySQLReader = null;
 
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE AccommodationID = " + id.ToString();
-
+            string slqCommandString = "SELECT p.*, c.City, c.Street, c.Province FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.PostalCode = c.PostalCode AND p.AccommodationID = " + id.ToString();
             try
             {
                 MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
@@ -265,8 +251,7 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                     // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
                     // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
-                    
-
+                          
                     mySQLReader.Close();
 
                     // In PUT, if an FK is updated in the child table, it will also get updated on the parent table.
@@ -291,9 +276,6 @@ namespace DirtBnBWebAPI.PersistenceServices
                         + "', BedSize='" + accommodation.bedSize
                         + "', PricePerNight='" + accommodation.pricePerNight
                         + "', HouseNumber='" + accommodation.houseNumber
-                        + "', City='" + accommodation.city
-                        + "', Street='" + accommodation.street
-                        + "', Province='" + accommodation.province
                         + "' WHERE AccommodationID=" + id.ToString();
 
                     MySqlCommand childMySqlCommandPostalCode = new MySqlCommand(childSqlUpdateCommandStringPostalCode, sqlConnection);
@@ -303,8 +285,6 @@ namespace DirtBnBWebAPI.PersistenceServices
                     sqlUpdateCommand.ExecuteNonQuery();
                     return true;
                 }
-
-                mySQLReader.Close();
                 return false;
             }
             catch (MySqlException ex)

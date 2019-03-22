@@ -22,7 +22,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             MySqlDataReader mySQLReader = null;
             List<Guest> guests = new List<Guest>();
 
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE;
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress";
             MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
             try
             {
@@ -32,11 +32,11 @@ namespace DirtBnBWebAPI.PersistenceServices
                 {
                     Guest guest = new Guest
                     {
-                        userID = mySQLReader.GetInt32(0),
-                        name = mySQLReader.GetString(1),
-                        emailAddress = mySQLReader.GetString(2),
-                        phoneNumber = mySQLReader.GetString(3),
-                        password = mySQLReader.GetString(4)
+                        userID = mySQLReader.GetInt32(0),                      
+                        emailAddress = mySQLReader.GetString(1),
+                        phoneNumber = mySQLReader.GetString(2),
+                        password = mySQLReader.GetString(3),
+                        name = mySQLReader.GetString(4),
                     };
                     guests.Add(guest);
                 }
@@ -54,7 +54,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         public Guest GetGuest(long id)
         {
             MySqlDataReader mySQLReader = null;
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress AND UserID = " + id.ToString();
 
             try
             {
@@ -66,10 +66,10 @@ namespace DirtBnBWebAPI.PersistenceServices
                     Guest guest = new Guest
                     {
                         userID = mySQLReader.GetInt32(0),
-                        name = mySQLReader.GetString(1),
-                        emailAddress = mySQLReader.GetString(2),
-                        phoneNumber = mySQLReader.GetString(3),
-                        password = mySQLReader.GetString(4)
+                        emailAddress = mySQLReader.GetString(1),
+                        phoneNumber = mySQLReader.GetString(2),
+                        password = mySQLReader.GetString(3),
+                        name = mySQLReader.GetString(4),
                     };
 
                     mySQLReader.Close();
@@ -95,9 +95,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + guest.emailAddress + "','"
                 + guest.name + "')";
 
-            string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, Name, EmailAddress, PhoneNumber, Password) VALUES ("
+            string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, EmailAddress, PhoneNumber, Password) VALUES ("
                 + guest.userID + ",'"
-                + guest.name + "','"
                 + guest.emailAddress + "','"
                 + guest.phoneNumber + "','"
                 + guest.password + "')";
@@ -132,7 +131,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                 if (mySQLReader.Read())
                 {
                     // This is the PK of the child table.
-                    var email = mySQLReader.GetString(2);
+                    var email = mySQLReader.GetString(1);
 
                     mySQLReader.Close();
 
@@ -163,7 +162,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         public bool UpdateGuest(long id, Guest guest)
         {
             MySqlDataReader mySQLReader = null;
-            string slqCommandString = "SELECT * FROM " + PARENT_TABLE + " WHERE UserID = " + id.ToString();
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress AND p.UserID = " + id.ToString();
 
             try
             {
@@ -173,26 +172,25 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-                    if (string.IsNullOrEmpty(guest.name))
-                    {
-                        guest.name = mySQLReader.GetString(1);
-                    }
-
                     // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
                     // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
-                    var oldEmail = mySQLReader.GetString(2);
+                    var oldEmail = mySQLReader.GetString(1);
 
                     if (string.IsNullOrEmpty(guest.emailAddress))
                     {
-                        guest.emailAddress = mySQLReader.GetString(2);
+                        guest.emailAddress = mySQLReader.GetString(1);
                     }
                     if (string.IsNullOrEmpty(guest.phoneNumber))
                     {
-                        guest.phoneNumber = mySQLReader.GetString(3);
+                        guest.phoneNumber = mySQLReader.GetString(2);
                     }
                     if (string.IsNullOrEmpty(guest.password))
                     {
-                        guest.password = mySQLReader.GetString(4);
+                        guest.password = mySQLReader.GetString(3);
+                    }
+                    if (string.IsNullOrEmpty(guest.name))
+                    {
+                        guest.name = mySQLReader.GetString(4);
                     }
 
                     mySQLReader.Close();
@@ -208,8 +206,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                         + "'";
 
                     string sqlUpdateCommandString = "UPDATE " + PARENT_TABLE
-                        + " SET Name='" + guest.name + "', "
-                        + "PhoneNumber='" + guest.phoneNumber
+                        + " SET PhoneNumber='" + guest.phoneNumber
                         + "', Password='" + guest.password
                         + "' WHERE UserID=" + id.ToString();
 

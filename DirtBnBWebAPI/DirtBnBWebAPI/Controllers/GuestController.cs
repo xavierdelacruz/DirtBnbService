@@ -76,6 +76,8 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
+        // TODO: UPDATE USER BASED ON ID WITH PASSWORD CHECK
+
         [Route("api/guests/{id}")]
         [HttpPatch]
         [HttpPut]
