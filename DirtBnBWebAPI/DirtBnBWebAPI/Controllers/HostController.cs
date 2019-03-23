@@ -38,7 +38,6 @@ namespace DirtBnBWebAPI.Controllers
                 response = Request.CreateResponse(HttpStatusCode.NotFound, "Host not found.");
                 return response;
             }
-
             if (hostRequest.password != host.password)
             {
                 response = Request.CreateResponse(HttpStatusCode.Unauthorized, "Incorrect password. Please try logging again.");
