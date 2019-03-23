@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
@@ -42,6 +43,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a GET Reviews call in ReviewPersistenceService(GetReviews): " + ex);
+                Debug.WriteLine(ex);
                 return null;
             }
         }
@@ -76,6 +78,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a GET Review call in ReviewPersistenceService (GetReview): " + ex);
+                Debug.WriteLine(ex);
                 return null;
             }
         }
@@ -85,7 +88,7 @@ namespace DirtBnBWebAPI.PersistenceServices
         {
             string sqlCommandString = "INSERT INTO Reviews VALUES(" + review.reviewID + "," +
                 review.accommodationID + "," + review.reservationID + ",'" + review.content + "'," + review.rating + ")";
-     
+            Debug.WriteLine(sqlCommandString);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
             try
             {
@@ -96,6 +99,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a POST Review call in ReviewPersistenceService (SaveReview): " + ex);
+                Debug.WriteLine(ex);
                 return -1;
             }
         }

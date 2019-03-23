@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
@@ -92,12 +93,15 @@ namespace DirtBnBWebAPI.PersistenceServices
             string childSqlCommandString = "INSERT INTO " + CHILD_TABLE + " (EmailAddress, Name) VALUES ('"
                 + host.emailAddress + "','"
                 + host.name + "')";
+            Debug.WriteLine(childSqlCommandString);
 
             string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (UserID, EmailAddress, PhoneNumber, Password) VALUES ("
                 + host.userID + ",'"
                 + host.emailAddress + "','"
                 + host.phoneNumber + "','"
                 + host.password + "')";
+            Debug.WriteLine(sqlCommandString);
+
 
             MySqlCommand childSqlCommand = new MySqlCommand(childSqlCommandString, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);

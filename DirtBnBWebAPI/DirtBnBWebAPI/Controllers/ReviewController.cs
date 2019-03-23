@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
+using System.Diagnostics;
 
 namespace DirtBnBWebAPI.Controllers
 {
@@ -72,6 +73,7 @@ namespace DirtBnBWebAPI.Controllers
             long id = ReviewPersistenceService.SaveReview(Review);
             if (id == -1)
             {
+
                 response = Request.CreateResponse(HttpStatusCode.BadRequest,
                     "Ensure referential integrity. Please try again.");
                 return response;
