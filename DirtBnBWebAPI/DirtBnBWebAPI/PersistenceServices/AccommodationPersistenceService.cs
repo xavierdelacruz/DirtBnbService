@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
@@ -337,6 +338,8 @@ namespace DirtBnBWebAPI.PersistenceServices
         // GET Accommodation Call
         public Accommodation GetAccommodation(long id)
         {
+            Debug.WriteLine("HELLLLOOOOOOOOOOO???");
+
             MySqlDataReader mySQLReader = null;
             string slqCommandString = "SELECT p.*, c.City, c.Street, c.Province FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.PostalCode = c.PostalCode AND p.AccommodationID = " + id.ToString();
 
@@ -367,6 +370,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         street = mySQLReader.GetString(12),
                         province = mySQLReader.GetString(13)
                     };
+                    Debug.WriteLine("houseNumber: " + mySQLReader.GetString(8));
+                    Debug.WriteLine("hostUserID: " + mySQLReader.GetString(9));
                     mySQLReader.Close();
                     return accommodation;
                 }
@@ -389,6 +394,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + accomodation.city + "','"
                 + accomodation.street + "','"
                 + accomodation.province + "')";
+            Debug.WriteLine(childSqlCommandStringPostalCode);
 
             string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " (AccommodationID, Parking, Wifi, TV, AirConditioning, " +
                 "GeneralAppliances, BedSize, PricePerNight, HouseNumber, HostUserID, PostalCode) VALUES ("
@@ -403,6 +409,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + accomodation.houseNumber + "',"
                 + accomodation.hostUserID + ",'"
                 + accomodation.postalCode + "')";
+            Debug.WriteLine(sqlCommandString);
 
             MySqlCommand childSqlCommandPostalCode = new MySqlCommand(childSqlCommandStringPostalCode, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
