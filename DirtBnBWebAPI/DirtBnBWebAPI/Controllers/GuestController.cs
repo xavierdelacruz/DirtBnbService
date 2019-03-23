@@ -126,5 +126,21 @@ namespace DirtBnBWebAPI.Controllers
                 return response;
             }
         }
+
+        [Route("api/guests/powerusers")]
+        [HttpGet]
+        public HttpResponseMessage GetGuestsReservedAllAccommodations()
+        {
+            GuestPersistenceService guestPersistenceService = new GuestPersistenceService();
+            var guests = guestPersistenceService.GetGuestsStayedAllAccommodations();
+            HttpResponseMessage response;
+            if (guests == null || guests.Count.Equals(0))
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No guests found that have reserved all accommodations.");
+                return response;
+            }
+            response = Request.CreateResponse(HttpStatusCode.OK, guests);
+            return response;
+        }
     }
 }

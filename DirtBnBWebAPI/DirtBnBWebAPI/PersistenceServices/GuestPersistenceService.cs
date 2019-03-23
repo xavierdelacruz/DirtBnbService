@@ -227,5 +227,48 @@ namespace DirtBnBWebAPI.PersistenceServices
                 throw ex;
             }
         }
+
+        // GET Guests Stayed At All Accommodations Call
+        public List<Guest> GetGuestsStayedAllAccommodations()
+        {
+            MySqlDataReader mySQLReader = null;
+            List<Guest> guests = new List<Guest>();
+
+
+
+            // string sqlCommandStringDivQuery = "SELECT "
+            string slqCommandString = "SELECT p.*, c.Name FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c WHERE p.EmailAddress = c.EmailAddress " +
+                 "AND p.UserID IN (" +
+                 "SELECT UserID FROM Guests WHERE NOT EXISTS (" +
+                 "SELECT * FROM Accommodations WHERE NOT EXISTS (" +
+                 "SELECT * FROM Reservations WHERE " +
+                 "Reservations.accommodationID = Accommodations.accommodationID AND " +
+                 "Reservations.guestUserID = Guests.userID)))";
+            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            try
+            {
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                while (mySQLReader.Read())
+                {
+                    Guest guest = new Guest
+                    {
+                        userID = mySQLReader.GetInt32(0),
+                        emailAddress = mySQLReader.GetString(1),
+                        phoneNumber = mySQLReader.GetString(2),
+                        password = mySQLReader.GetString(3),
+                        name = mySQLReader.GetString(4),
+                    };
+                    guests.Add(guest);
+                }
+                mySQLReader.Close();
+                return guests;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Guests call in GuestPersistenceService: " + ex);
+                return null;
+            }
+        }
     }
 }
