@@ -78,16 +78,16 @@ namespace DirtBnBWebAPI.Controllers
         [Route("api/complaints/{id}")]
         [HttpPatch]
         [HttpPut]
-        public HttpResponseMessage UpdateComplaint(long id, [FromBody]String resolution)
+        public HttpResponseMessage UpdateComplaint(long id, [FromBody]Complaint complaint)
         {
             ComplaintPersistenceService complaintPersistenceService = new ComplaintPersistenceService();
             bool complaintExists = false;
-            complaintExists = complaintPersistenceService.UpdateComplaint(id, resolution);
+            complaintExists = complaintPersistenceService.UpdateComplaint(id, complaint);
 
             HttpResponseMessage response;
             if (complaintExists)
             {
-                response = Request.CreateResponse(HttpStatusCode.OK, resolution);
+                response = Request.CreateResponse(HttpStatusCode.OK, complaint);
                 return response;
             }
             else

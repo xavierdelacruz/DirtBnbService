@@ -44,6 +44,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a GET Complaints call in ComplaintPersistenceService(GetComplaints): " + ex);
+                Debug.WriteLine(ex);
                 return null;
             }
         }
@@ -79,6 +80,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a GET Complaint call in ComplaintPersistenceService (GetComplaint): " + ex);
+                Debug.WriteLine(ex);
                 return null;
             }
         }
@@ -94,7 +96,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             else
             {
                 sqlCommandString = "INSERT INTO Complaints VALUES(null, " + complaint.guestUserID + "," +
-                complaint.hostUserID + "," + complaint.csrUserID + ",'" + complaint.content + "'," + complaint.resolution + ")";
+                complaint.hostUserID + "," + complaint.csrUserID + ",'" + complaint.content + "','" + complaint.resolution + "')";
             }          
             Debug.WriteLine(sqlCommandString);
 
@@ -108,12 +110,13 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a POST Complaint call in ComplaintPersistenceService (SaveComplaint): " + ex);
+                Debug.WriteLine(ex);
                 return -1;
             }
         }
 
         // PATCH or PUT Accommodation
-        public bool UpdateComplaint(long id, String resolution)
+        public bool UpdateComplaint(long id, Complaint complaint)
         {
             MySqlDataReader mySQLReader = null;
             string slqCommandString = "SELECT * FROM Complaints WHERE ComplaintID = " + id.ToString();
@@ -126,15 +129,17 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                 if (mySQLReader.Read())
                 {
-                    // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
-                    // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
-                    var oldEmail = mySQLReader.GetString(1);
-                    
+                    complaint.complaintID = id;
+                    complaint.guestUserID = mySQLReader.GetInt32(1);
+                    complaint.hostUserID = mySQLReader.GetInt32(2);
+                    complaint.csrUserID = mySQLReader.GetInt32(3);
+                    complaint.content = mySQLReader.GetString(4);
                     mySQLReader.Close();
 
                     string sqlUpdateCommandString = "UPDATE Complaints"
-                        + " SET resolution='" + resolution
+                        + " SET resolution='" + complaint.resolution
                         + "' WHERE ComplaintID=" + id.ToString();
+                    Debug.WriteLine(sqlUpdateCommandString);
 
                     MySqlCommand sqlUpdateCommand = new MySqlCommand(sqlUpdateCommandString, sqlConnection);
 
@@ -148,6 +153,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a PUT Complaint call in ComplaintPersistenceService: " + ex);
+                Debug.WriteLine(ex);
                 return false;
             }
         }
