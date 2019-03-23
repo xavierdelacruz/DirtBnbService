@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
@@ -113,7 +114,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Found an error when performing a POST CSR call in CSRPersistenceService: " + ex);
+                Debug.WriteLine("Found an error when performing a POST CSR call in CSRPersistenceService: " + ex);
                 return -1;
             }
         }
