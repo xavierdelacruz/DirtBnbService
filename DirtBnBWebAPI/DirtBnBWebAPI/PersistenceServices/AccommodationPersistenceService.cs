@@ -28,10 +28,8 @@ namespace DirtBnBWebAPI.PersistenceServices
             try
             {
                 mySQLReader = sqlCommand.ExecuteReader();
-
-
                 while (mySQLReader.Read())
-                {         
+                {
                     Accommodation accommodation = new Accommodation
                     {
                         accommodationID = mySQLReader.GetInt32(0),
@@ -45,7 +43,6 @@ namespace DirtBnBWebAPI.PersistenceServices
                         houseNumber = mySQLReader.GetString(8),
                         hostUserID = mySQLReader.GetInt32(9),
                         postalCode = mySQLReader.GetString(10),
-
                         city = mySQLReader.GetString(11),
                         street = mySQLReader.GetString(12),
                         province = mySQLReader.GetString(13)
@@ -53,13 +50,63 @@ namespace DirtBnBWebAPI.PersistenceServices
                     accommodations.Add(accommodation);
                 }
                 mySQLReader.Close();
-                // mySQLChildReader.Close();
                 return accommodations;
             }
             catch (MySqlException ex)
             {
                 Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
                 return null;
+            }
+        }
+
+        // GET Accommodations Call
+        public object GetAccommodationsSelectiveColumns(bool? includeAmenities, bool? includeBedSize, bool? includePricePerNight)
+        {
+            if (includeAmenities.Value.Equals(false)
+                && includeBedSize.Value.Equals(true)
+                && includePricePerNight.Value.Equals(true))
+            {
+                return selectNoAmenities();
+            }
+
+            if (includeAmenities.Value.Equals(true)
+                && includeBedSize.Value.Equals(false)
+                && includePricePerNight.Value.Equals(true))
+            {
+                return selectNoBed();
+            }
+
+            if (includeAmenities.Value.Equals(true)
+                && includeBedSize.Value.Equals(true)
+                && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoPricePerNight();
+            }
+
+            if (includeAmenities.Value.Equals(false)
+                && includeBedSize.Value.Equals(false)
+                && includePricePerNight.Value.Equals(true))
+            {
+                return selectNoAmenitiesNoBedSize();
+            }
+
+            if (includeAmenities.Value.Equals(false)
+                && includeBedSize.Value.Equals(true)
+                && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoAmenitiesNoPricePerNight();
+            }
+
+            if (includeAmenities.Value.Equals(true)
+                && includeBedSize.Value.Equals(false)
+                && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoBedSizeNoPricePerNight();
+            }
+
+            else
+            {
+                return GetAccommodations();
             }
         }
 
@@ -79,7 +126,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             try
             {
                 mySQLReader = sqlCommand.ExecuteReader();
-                
+
 
                 while (mySQLReader.Read())
                 {
@@ -89,7 +136,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                         province = mySQLReader.GetString(1),
                         avgAccommodationPrice = mySQLReader.GetInt32(2)
                     };
-                accommodationsAvg.Add(accommodationAverage);
+                    accommodationsAvg.Add(accommodationAverage);
                 }
                 mySQLReader.Close();
                 // mySQLChildReader.Close();
@@ -151,7 +198,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             {
                 MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
                 mySQLReader = sqlCommand.ExecuteReader();
-                
+
 
                 if (mySQLReader.Read())
                 {
@@ -168,8 +215,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         pricePerNight = mySQLReader.GetInt32(7),
                         houseNumber = mySQLReader.GetString(8),
                         hostUserID = mySQLReader.GetInt32(9),
-                        postalCode = mySQLReader.GetString(10),     
-                        
+                        postalCode = mySQLReader.GetString(10),
+
                         city = mySQLReader.GetString(11),
                         street = mySQLReader.GetString(12),
                         province = mySQLReader.GetString(13)
@@ -210,7 +257,7 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + accomodation.houseNumber + "',"
                 + accomodation.hostUserID + ",'"
                 + accomodation.postalCode + "')";
-              
+
             MySqlCommand childSqlCommandPostalCode = new MySqlCommand(childSqlCommandStringPostalCode, sqlConnection);
             MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
             try
@@ -329,7 +376,7 @@ namespace DirtBnBWebAPI.PersistenceServices
 
                     // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
                     // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
-                          
+
                     mySQLReader.Close();
 
                     // In PUT, if an FK is updated in the child table, it will also get updated on the parent table.
@@ -369,6 +416,231 @@ namespace DirtBnBWebAPI.PersistenceServices
             {
                 Console.WriteLine("Found an error when performing a PUT Accommodation call in AccomodationPersistenceService: " + ex);
                 return false;
+            }
+        }
+
+        private object selectNoAmenities()
+        {
+            try
+            {
+                List<AccommodationNoAmenities> accommodations = new List<AccommodationNoAmenities>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.BedSize, p.HostUserID, p.PricePerNight, p.HouseNumber, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationNoAmenities accommodationNoAmenities = new AccommodationNoAmenities
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        bedSize = mySQLReader.GetString(1),
+                        hostUserID = mySQLReader.GetInt32(2),
+                        pricePerNight = mySQLReader.GetInt32(3),
+                        houseNumber = mySQLReader.GetString(4),
+                        postalCode = mySQLReader.GetString(5),
+                        city = mySQLReader.GetString(6),
+                        street = mySQLReader.GetString(7),
+                        province = mySQLReader.GetString(8)
+                    };
+                    accommodations.Add(accommodationNoAmenities);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoBed()
+        {
+            try
+            {
+                List<AccommodationNoBed> accommodations = new List<AccommodationNoBed>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.Parking, p.Wifi, p.TV, p.AirConditioning, p.GeneralAppliances, p.HostUserID, p.PricePerNight, p.HouseNumber, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationNoBed accommodationNoBed = new AccommodationNoBed
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        parking = mySQLReader.GetByte(1),
+                        wifi = mySQLReader.GetByte(2),
+                        tv = mySQLReader.GetByte(3),
+                        airConditioning = mySQLReader.GetByte(4),
+                        generalAppliances = mySQLReader.GetByte(5),
+                        hostUserID = mySQLReader.GetInt32(6),
+                        pricePerNight = mySQLReader.GetInt32(7),
+                        houseNumber = mySQLReader.GetString(8),
+                        postalCode = mySQLReader.GetString(9),
+                        city = mySQLReader.GetString(10),
+                        street = mySQLReader.GetString(11),
+                        province = mySQLReader.GetString(12)
+                    };
+                    accommodations.Add(accommodationNoBed);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoPricePerNight()
+        {
+            try
+            {
+                List<AccommodationNoPricePerNight> accommodations = new List<AccommodationNoPricePerNight>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.Parking, p.Wifi, p.TV, p.AirConditioning, p.GeneralAppliances, p.BedSize, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationNoPricePerNight accommodationNoBed = new AccommodationNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        parking = mySQLReader.GetByte(1),
+                        wifi = mySQLReader.GetByte(2),
+                        tv = mySQLReader.GetByte(3),
+                        airConditioning = mySQLReader.GetByte(4),
+                        generalAppliances = mySQLReader.GetByte(5),
+                        bedSize = mySQLReader.GetString(6),
+                        houseNumber = mySQLReader.GetString(7),
+                        hostUserID = mySQLReader.GetInt32(8),
+                        postalCode = mySQLReader.GetString(9),
+                        city = mySQLReader.GetString(10),
+                        street = mySQLReader.GetString(11),
+                        province = mySQLReader.GetString(12)
+                    };
+                    accommodations.Add(accommodationNoBed);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoAmenitiesNoBedSize()
+        {
+            try
+            {
+                List<AccommodationNoAmenitiesNoBedSize> accommodations = new List<AccommodationNoAmenitiesNoBedSize>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.PricePerNight, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationNoAmenitiesNoBedSize accommodationNoAmenitiesNoBed = new AccommodationNoAmenitiesNoBedSize
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        pricePerNight = mySQLReader.GetInt32(1),
+                        houseNumber = mySQLReader.GetString(2),
+                        hostUserID = mySQLReader.GetInt32(3),
+                        postalCode = mySQLReader.GetString(4),
+                        city = mySQLReader.GetString(5),
+                        street = mySQLReader.GetString(6),
+                        province = mySQLReader.GetString(7)
+                    };
+                    accommodations.Add(accommodationNoAmenitiesNoBed);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoAmenitiesNoPricePerNight()
+        {
+            try
+            {
+                List<AccommodationsNoAmenitiesNoPricePerNight> accommodations = new List<AccommodationsNoAmenitiesNoPricePerNight>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.BedSize, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationsNoAmenitiesNoPricePerNight accommodationNoAmenitiesNoBed = new AccommodationsNoAmenitiesNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        bedSize = mySQLReader.GetString(1),
+                        houseNumber = mySQLReader.GetString(2),
+                        hostUserID = mySQLReader.GetInt32(3),
+                        postalCode = mySQLReader.GetString(4),
+                        city = mySQLReader.GetString(5),
+                        street = mySQLReader.GetString(6),
+                        province = mySQLReader.GetString(7)
+                    };
+                    accommodations.Add(accommodationNoAmenitiesNoBed);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoBedSizeNoPricePerNight()
+        {
+            try
+            {
+                List<AccommodationsNoBedSizeNoPricePerNight> accommodations = new List<AccommodationsNoBedSizeNoPricePerNight>();
+                string slqCommandStringNoAmenities = "SELECT p.AccommodationID, p.Parking, p.Wifi, p.TV, p.AirConditioning, p.GeneralAppliances, p.HostUserID, p.HouseNumber, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(slqCommandStringNoAmenities, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    AccommodationsNoBedSizeNoPricePerNight accommodation = new AccommodationsNoBedSizeNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        parking = mySQLReader.GetByte(1),
+                        wifi = mySQLReader.GetByte(2),
+                        tv = mySQLReader.GetByte(3),
+                        airConditioning = mySQLReader.GetByte(4),
+                        generalAppliances = mySQLReader.GetByte(5),
+                        houseNumber = mySQLReader.GetString(6),
+                        hostUserID = mySQLReader.GetInt32(7),
+                        postalCode = mySQLReader.GetString(8),
+                        city = mySQLReader.GetString(9),
+                        street = mySQLReader.GetString(10),
+                        province = mySQLReader.GetString(11)
+                    };
+                    accommodations.Add(accommodation);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
             }
         }
     }
