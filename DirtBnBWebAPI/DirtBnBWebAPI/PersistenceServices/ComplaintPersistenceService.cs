@@ -113,31 +113,43 @@ namespace DirtBnBWebAPI.PersistenceServices
         }
 
         // PATCH or PUT Accommodation
-        // TODO
-        //public bool UpdateComplaint(long id, Complaint complaint)
-        //{
-        //    MySqlDataReader mySQLReader = null;
+        public bool UpdateComplaint(long id, String resolution)
+        {
+            MySqlDataReader mySQLReader = null;
+            string slqCommandString = "SELECT * FROM Complaints WHERE ComplaintID = " + id.ToString();
 
-        //    try
-        //    {
-        //        string sqlCommandString = "TODO";
-        //        MySqlCommand sqlCommand = new MySqlCommand(sqlCommandString, sqlConnection);
-        //        mySQLReader = sqlCommand.ExecuteReader();
-        
-        //        if (mySQLReader.Read())
-        //        {
-        //            mySQLReader.Close();
-        //            return true;
-        //        }
+            try
+            {
+                MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+                mySQLReader = sqlCommand.ExecuteReader();
 
-        //        mySQLReader.Close();
-        //        return false;
-        //    }
-        //    catch (MySqlException ex)
-        //    {
-        //        Console.WriteLine("Found an error when performing a PUT Accommodation call in AccomodationPersistenceService: " + ex);
-        //        return false;
-        //    }
-        //}
-    }
+
+                if (mySQLReader.Read())
+                {
+                    // If we are to update the email, we will need to reference the old email, as it is the PK in the child table.
+                    // AGAIN, updating the PK of a table is a BAD idea, but in our design, we want the user to be able to update Email.
+                    var oldEmail = mySQLReader.GetString(1);
+                    
+                    mySQLReader.Close();
+
+                    string sqlUpdateCommandString = "UPDATE Complaints"
+                        + " SET resolution='" + resolution
+                        + "' WHERE ComplaintID=" + id.ToString();
+
+                    MySqlCommand sqlUpdateCommand = new MySqlCommand(sqlUpdateCommandString, sqlConnection);
+
+                    sqlUpdateCommand.ExecuteNonQuery();
+                    return true;
+                }
+
+                mySQLReader.Close();
+                return false;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a PUT Complaint call in ComplaintPersistenceService: " + ex);
+                return false;
+            }
+        }
+}
 }

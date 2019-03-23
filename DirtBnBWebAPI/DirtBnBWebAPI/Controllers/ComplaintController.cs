@@ -25,7 +25,7 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
-        [Route("api/Complaints/{id}")]
+        [Route("api/complaints/{id}")]
         [HttpGet]
         public HttpResponseMessage GetComplaint(long id)
         {
@@ -40,7 +40,7 @@ namespace DirtBnBWebAPI.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, Complaint);
         }
 
-        [Route("api/Complaints/")]
+        [Route("api/complaints/")]
         [HttpPost]
         public HttpResponseMessage CreateComplaint([FromBody]Complaint Complaint)
         {
@@ -73,6 +73,28 @@ namespace DirtBnBWebAPI.Controllers
             response = Request.CreateResponse(HttpStatusCode.Created, Complaint);
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("Complaints/{0}", id));
             return response;
+        }
+
+        [Route("api/complaints/{id}")]
+        [HttpPatch]
+        [HttpPut]
+        public HttpResponseMessage UpdateComplaint(long id, [FromBody]String resolution)
+        {
+            ComplaintPersistenceService complaintPersistenceService = new ComplaintPersistenceService();
+            bool complaintExists = false;
+            complaintExists = complaintPersistenceService.UpdateComplaint(id, resolution);
+
+            HttpResponseMessage response;
+            if (complaintExists)
+            {
+                response = Request.CreateResponse(HttpStatusCode.OK, resolution);
+                return response;
+            }
+            else
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "Complaint not found.");
+                return response;
+            }
         }
     }
 }
