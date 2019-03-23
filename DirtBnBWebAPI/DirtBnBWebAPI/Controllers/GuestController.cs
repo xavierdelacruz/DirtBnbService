@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
+using MySql.Data.MySqlClient;
 
 namespace DirtBnBWebAPI.Controllers
 {
@@ -66,7 +67,7 @@ namespace DirtBnBWebAPI.Controllers
             var id = guestPersistenceService.SaveGuest(guest);
             if (id < 0)
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A Guest with the same email address has already been created");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A user with the same email address has already been created.");
                 return response;
             }
             guest.userID = id;
@@ -75,6 +76,8 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
+        // TODO: UPDATE USER BASED ON ID WITH PASSWORD CHECK
+
         [Route("api/guests/{id}")]
         [HttpPatch]
         [HttpPut]
@@ -82,19 +85,25 @@ namespace DirtBnBWebAPI.Controllers
         {
             GuestPersistenceService guestPersistenceService = new GuestPersistenceService();
             bool userExists = false;
-            userExists = guestPersistenceService.UpdateGuest(id, guest);
-
             HttpResponseMessage response;
-            if (userExists)
+            try
             {
-                response = Request.CreateResponse(HttpStatusCode.OK, guest);
-                return response;
+                userExists = guestPersistenceService.UpdateGuest(id, guest); if (userExists)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.OK, guest);
+                    return response;
+                }
+                else
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "Guest not found.");
+                    return response;
+                }
             }
-            else
+            catch (MySqlException ex)
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "Guest not found.");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "The email is already in use. Please try again.");
                 return response;
-            }
+            }       
         }
 
         [Route("api/guests/{id}")]

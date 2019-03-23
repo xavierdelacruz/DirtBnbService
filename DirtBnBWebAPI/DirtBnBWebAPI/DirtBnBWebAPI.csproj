@@ -181,12 +181,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Accommodation.cs" />
+    <Compile Include="Models\AccommodationAvg.cs" />
     <Compile Include="Models\CSR.cs" />
     <Compile Include="Models\Guest.cs" />
     <Compile Include="Models\Host.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Controllers\UserController.cs" />
-    <Compile Include="PersistenceServices\AccomodationPersistenceService.cs" />
+    <Compile Include="PersistenceServices\AccommodationPersistenceService.cs" />
     <Compile Include="PersistenceServices\CSRPersistenceService.cs" />
     <Compile Include="PersistenceServices\GuestPersistenceService.cs" />
     <Compile Include="PersistenceServices\HostPersistenceService.cs" />

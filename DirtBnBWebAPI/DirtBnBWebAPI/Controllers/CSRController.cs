@@ -66,7 +66,7 @@ namespace DirtBnBWebAPI.Controllers
             var id = csrPersistenceService.SaveCSR(csr);
             if (id < 0)
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A CSR with the same email address has already been created");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A CSR with the same email address has already been created.");
                 return response;
             }
             csr.userID = id;
