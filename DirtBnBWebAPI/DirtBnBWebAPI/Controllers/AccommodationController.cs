@@ -9,20 +9,89 @@ namespace DirtBnBWebAPI.Controllers
 {
     public class AccommodationController : ApiController
     {
-        [Route("api/accommodations")]
+        [Route("api/accommodations/")]
         [HttpGet]
-        public HttpResponseMessage GetAccomodations()
+        public HttpResponseMessage GetAccommodationsWithColumns([FromBody]SelectSQLString sqlString)
         {
             AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
-            var accommodations = accommodationPersistenceService.GetAccommodations();
-            HttpResponseMessage response;
-            if (accommodations == null || accommodations.Count.Equals(0))
+            if (sqlString != null)
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found.");
+                var accommodations = accommodationPersistenceService.GetAccommodationsSelectiveColumns(sqlString.includeAmenities, sqlString.includeBedSize, sqlString.includePricePerNight);
+                HttpResponseMessage response;
+                if (accommodations == null)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    return response;
+                }
+                response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
                 return response;
             }
-            response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
-            return response;
+            var selectedAccommodations = accommodationPersistenceService.GetAccommodations();
+            HttpResponseMessage selectedResponse;
+            if (selectedAccommodations == null)
+            {
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                return selectedResponse;
+            }
+            selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
+            return selectedResponse;
+        }
+
+
+        [Route("api/accommodations/{id}")]
+        [HttpGet]
+        public HttpResponseMessage GetAccommodationWith(long id, [FromBody] SelectSQLString sqlString)
+        {
+            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
+            if (sqlString != null)
+            {
+                var accommodations = accommodationPersistenceService.GetAccommodationSelectiveColumns(sqlString.includeAmenities, sqlString.includeBedSize, sqlString.includePricePerNight, id);
+                HttpResponseMessage response;
+                if (accommodations == null)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    return response;
+                }
+                response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
+                return response;
+            }
+            var selectedAccommodations = accommodationPersistenceService.GetAccommodation(id);
+            HttpResponseMessage selectedResponse;
+            if (selectedAccommodations == null)
+            {
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                return selectedResponse;
+            }
+            selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
+            return selectedResponse;
+        }
+
+        [Route("api/accommodations/host/{id}")]
+        [HttpGet]
+        public HttpResponseMessage GetAccommodationPerHost(long id, [FromBody] SelectSQLString sqlString)
+        {
+            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
+            if (sqlString != null)
+            {
+                var accommodations = accommodationPersistenceService.GetAccommodationsSelectiveColumnsHost(sqlString.includeAmenities, sqlString.includeBedSize, sqlString.includePricePerNight, id);
+                HttpResponseMessage response;
+                if (accommodations == null)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    return response;
+                }
+                response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
+                return response;
+            }
+            var selectedAccommodations = accommodationPersistenceService.GetAccommodationsHost(id);
+            HttpResponseMessage selectedResponse;
+            if (selectedAccommodations == null)
+            {
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                return selectedResponse;
+            }
+            selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
+            return selectedResponse;
         }
 
         [Route("api/accommodations/cityaverages")]
@@ -45,9 +114,15 @@ namespace DirtBnBWebAPI.Controllers
         [HttpGet]
         public HttpResponseMessage GetAccommodationAveragesOfCity([FromBody]Accommodation accommodation)
         {
-            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
-            var accommodationsAvg = accommodationPersistenceService.GetAccommodationsAveragePriceOfCity(accommodation.city, accommodation.province);
             HttpResponseMessage response;
+            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
+            if (accommodation == null)
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "Request body is empty to get city average.");
+                return response;
+            }
+            var accommodationsAvg = accommodationPersistenceService.GetAccommodationsAveragePriceOfCity(accommodation.city, accommodation.province);
+
             if (accommodationsAvg == null)
             {
                 response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodation average found from city: " + accommodation.city);
@@ -55,21 +130,6 @@ namespace DirtBnBWebAPI.Controllers
             }
             response = Request.CreateResponse(HttpStatusCode.OK, accommodationsAvg);
             return response;
-        }
-
-        [Route("api/accommodations/{id}")]
-        [HttpGet]
-        public HttpResponseMessage GetHost(long id)
-        {
-            AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
-            Accommodation accommodation = accommodationPersistenceService.GetAccommodation(id);
-            HttpResponseMessage response;
-            if (accommodation == null)
-            {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "Accommodation not found.");
-                return response;
-            }
-            return Request.CreateResponse(HttpStatusCode.OK, accommodation);
         }
 
         [Route("api/accommodations/")]
