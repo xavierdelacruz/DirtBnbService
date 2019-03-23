@@ -51,7 +51,7 @@ namespace DirtBnBWebAPI.Controllers
             var id = reservationPersistenceService.SaveReservation(reservation);
             if (id < 0)
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, "TODO: debug");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "Ensure referential integrity. Please try again.");
                 return response;
             }
             reservation.reservationID = id;

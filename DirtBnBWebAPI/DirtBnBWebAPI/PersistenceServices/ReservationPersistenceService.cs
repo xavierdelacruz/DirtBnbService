@@ -40,9 +40,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         reservationID = mySQLReader.GetInt32(0),
                         guestUserID = mySQLReader.GetInt32(1),
                         accommodationID = mySQLReader.GetInt32(2),
-                        paymentID = mySQLReader.GetInt32(3),
-                        startDateTime = mySQLReader.GetDateTime(4),
-                        endDateTime = mySQLReader.GetDateTime(5),
+                        startDateTime = mySQLReader.GetDateTime(3),
+                        endDateTime = mySQLReader.GetDateTime(4),
                         reservationLength = (int) mySQLReader["reservationLength"]
                     };
                     reservations.Add(reservation);
@@ -79,9 +78,8 @@ namespace DirtBnBWebAPI.PersistenceServices
                         reservationID = mySQLReader.GetInt32(0),
                         guestUserID = mySQLReader.GetInt32(1),
                         accommodationID = mySQLReader.GetInt32(2),
-                        paymentID = mySQLReader.GetInt32(3),
-                        startDateTime = mySQLReader.GetDateTime(4),
-                        endDateTime = mySQLReader.GetDateTime(5),
+                        startDateTime = mySQLReader.GetDateTime(3),
+                        endDateTime = mySQLReader.GetDateTime(4),
                         reservationLength = (int)mySQLReader["reservationLength"]
                     };
                     mySQLReader.Close();
@@ -111,7 +109,6 @@ namespace DirtBnBWebAPI.PersistenceServices
                 + reservation.reservationID + ",'"
                 + reservation.guestUserID + "','"
                 + reservation.accommodationID + "','"
-                + reservation.paymentID + "','"
                 + reservation.startDateTime.ToString("yyyy'-'MM'-'dd") + "','"
                 + reservation.endDateTime.ToString("yyyy'-'MM'-'dd") + "')";
             Debug.WriteLine(sqlCommandString);
@@ -126,7 +123,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine("Child tuple already present due to FD; skipping insertion of child tuple.");
+                Debug.WriteLine("Child tuple already present due to FD; skipping insertion of child tuple.");
             }
 
             try
