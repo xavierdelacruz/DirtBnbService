@@ -71,17 +71,30 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/accommodations/{id}")]
         [HttpGet]
-        public HttpResponseMessage GetAccommodation(long id)
+        public HttpResponseMessage GetAccommodation(long id, [FromBody] SelectSQLString sqlString)
         {
             AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
-            Accommodation accommodation = accommodationPersistenceService.GetAccommodation(id);
-            HttpResponseMessage response;
-            if (accommodation == null)
+            if (sqlString != null)
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "Accommodation not found.");
+                var accommodations = accommodationPersistenceService.GetAccommodationSelectiveColumns(sqlString.includeAmenities, sqlString.includeBedSize, sqlString.includePricePerNight, id);
+                HttpResponseMessage response;
+                if (accommodations == null)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    return response;
+                }
+                response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
                 return response;
             }
-            return Request.CreateResponse(HttpStatusCode.OK, accommodation);
+            var selectedAccommodations = accommodationPersistenceService.GetAccommodation(id);
+            HttpResponseMessage selectedResponse;
+            if (selectedAccommodations == null)
+            {
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                return selectedResponse;
+            }
+            selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
+            return selectedResponse;
         }
 
         [Route("api/accommodations/")]
