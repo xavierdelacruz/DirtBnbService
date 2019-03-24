@@ -26,6 +26,23 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
+        [Route("api/reviews/aboveavg")]
+        [HttpGet]
+        public HttpResponseMessage GetAboveAverageReviewPerAccommodation()
+        {
+            ReviewPersistenceService ReviewPersistenceService = new ReviewPersistenceService();
+            var Reviews = ReviewPersistenceService.GetAboveAverageReviews();
+            HttpResponseMessage response;
+            if (Reviews == null || Reviews.Count.Equals(0))
+            {
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "No Reviews found.");
+                return response;
+            }
+            response = Request.CreateResponse(HttpStatusCode.OK, Reviews);
+            return response;
+        }
+        
+
         [Route("api/Reviews/{id}")]
         [HttpGet]
         public HttpResponseMessage GetReview(long id)
