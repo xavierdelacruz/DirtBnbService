@@ -20,7 +20,7 @@ namespace DirtBnBWebAPI.Controllers
                 HttpResponseMessage response;
                 if (accommodations == null)
                 {
-                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for any user.");
                     return response;
                 }
                 response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
@@ -30,7 +30,7 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage selectedResponse;
             if (selectedAccommodations == null)
             {
-                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for any user.");
                 return selectedResponse;
             }
             selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
@@ -49,7 +49,7 @@ namespace DirtBnBWebAPI.Controllers
                 HttpResponseMessage response;
                 if (accommodations == null)
                 {
-                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for user with id: " + id);
                     return response;
                 }
                 response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
@@ -59,7 +59,7 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage selectedResponse;
             if (selectedAccommodations == null)
             {
-                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for user with id: " + id);
                 return selectedResponse;
             }
             selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
@@ -77,7 +77,7 @@ namespace DirtBnBWebAPI.Controllers
                 HttpResponseMessage response;
                 if (accommodations == null)
                 {
-                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host.");
                     return response;
                 }
                 response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
@@ -87,7 +87,7 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage selectedResponse;
             if (selectedAccommodations == null)
             {
-                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities.");
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host.");
                 return selectedResponse;
             }
             selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
@@ -160,7 +160,7 @@ namespace DirtBnBWebAPI.Controllers
             var id = accommodationPersistenceService.SaveAccommodation(accommodation);
             if (id < 0)
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, "A user with the same email address has already been created");
+                response = Request.CreateResponse(HttpStatusCode.BadRequest, "Unable to create accommodation, please check if host exists.");
                 return response;
             }
             accommodation.accommodationID = id;

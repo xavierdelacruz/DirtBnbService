@@ -763,7 +763,7 @@ namespace DirtBnBWebAPI.PersistenceServices
             try
             {
                 List<AccommodationsNoBedSizeNoPricePerNight> accommodations = new List<AccommodationsNoBedSizeNoPricePerNight>();
-                string sqlCommandString = "SELECT p.AccommodationID, p.Parking, p.Wifi, p.TV, p.AirConditioning, p.GeneralAppliances, p.HostUserID, p.HouseNumber, p.PostalCode, c.City, c.Street, c.Province " +
+                string sqlCommandString = "SELECT p.AccommodationID, p.Parking, p.Wifi, p.TV, p.AirConditioning, p.GeneralAppliances, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
                 "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
                 "WHERE p.PostalCode = c.PostalCode";
                 MySqlCommand sqlCommandNoAmenities = new MySqlCommand(sqlCommandString, sqlConnection);
