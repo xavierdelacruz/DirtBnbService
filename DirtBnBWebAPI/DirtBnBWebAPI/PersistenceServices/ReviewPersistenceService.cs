@@ -83,6 +83,45 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
+        // GET Reviews Above Accommodation Average Call
+        public List<Review> GetAboveAverageReviews()
+        {
+            MySqlDataReader mySQLReader = null;
+            List<Review> Reviews = new List<Review>();
+
+            string slqCommandString = "SELECT Reviews.reviewID, Reviews.accommodationID, Reviews.reservationID, Reviews.content, Reviews.rating, " +
+                "AVGTABLE.avgR as avgRating " +
+                "FROM Reviews JOIN(SELECT Reviews.accommodationID, avg(Reviews.rating) as avgR FROM Reviews, Accommodations " +
+                "WHERE Reviews.accommodationID = Accommodations.accommodationID GROUP BY Reviews.accommodationID) " +
+                "AS AVGTABLE ON Reviews.accommodationID = AVGTABLE.accommodationID WHERE Reviews.rating >= AVGTABLE.avgR";
+
+            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            try
+            {
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                while (mySQLReader.Read())
+                {
+                    Review Review = new Review();
+                    Review.reviewID = mySQLReader.GetInt32(0);
+                    Review.accommodationID = mySQLReader.GetInt32(1);
+                    Review.reservationID = mySQLReader.GetInt32(2);
+                    Review.content = mySQLReader.GetString(3);
+                    Review.rating = mySQLReader.GetInt32(4);
+                    Reviews.Add(Review);
+                }
+                mySQLReader.Close();
+                return Reviews;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Reviews call in ReviewPersistenceService(GetReviews): " + ex);
+                Debug.WriteLine(ex);
+                return null;
+            }
+        }
+
+
         // POST Review
         public long SaveReview(Review review)
         {
