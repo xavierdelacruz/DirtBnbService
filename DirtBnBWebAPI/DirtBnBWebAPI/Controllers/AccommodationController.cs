@@ -77,7 +77,7 @@ namespace DirtBnBWebAPI.Controllers
                 HttpResponseMessage response;
                 if (accommodations == null)
                 {
-                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host.");
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host with id: " + id);
                     return response;
                 }
                 response = Request.CreateResponse(HttpStatusCode.OK, accommodations);
@@ -87,7 +87,7 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage selectedResponse;
             if (selectedAccommodations == null)
             {
-                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host.");
+                selectedResponse = Request.CreateResponse(HttpStatusCode.NotFound, "No accommodations found for cities from that host with id: " + id);
                 return selectedResponse;
             }
             selectedResponse = Request.CreateResponse(HttpStatusCode.OK, selectedAccommodations);
@@ -203,12 +203,12 @@ namespace DirtBnBWebAPI.Controllers
             HttpResponseMessage response;
             if (userExists)
             {
-                response = Request.CreateResponse(HttpStatusCode.OK, "Accommodation deleted.");
+                response = Request.CreateResponse(HttpStatusCode.OK, "Accommodation deleted with id: " + id);
                 return response;
             }
             else
             {
-                response = Request.CreateResponse(HttpStatusCode.NotFound, "Accommodation not found.");
+                response = Request.CreateResponse(HttpStatusCode.NotFound, "Accommodation not found with id :" + id);
                 return response;
             }
         }
