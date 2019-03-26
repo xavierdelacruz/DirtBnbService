@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DirtBnBWebAPI.Models;
 using MySql.Data.MySqlClient;
-using System.Diagnostics;
 
 namespace DirtBnBWebAPI.PersistenceServices
 {
