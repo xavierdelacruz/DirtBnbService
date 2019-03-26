@@ -111,7 +111,7 @@ namespace DirtBnBWebAPI.Controllers
         }
 
         [Route("api/accommodations/cityaverage")]
-        [HttpGet]
+        [HttpPost]
         public HttpResponseMessage GetAccommodationAveragesOfCity([FromBody]Accommodation accommodation)
         {
             HttpResponseMessage response;
