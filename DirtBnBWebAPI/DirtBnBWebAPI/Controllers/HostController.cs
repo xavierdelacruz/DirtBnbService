@@ -26,9 +26,9 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
-        [Route("api/hosts/{id}")]
+        [Route("api/hosts/{id}/{password}")]
         [HttpGet]
-        public HttpResponseMessage GetHost(long id, [FromBody] Host hostRequest)
+        public HttpResponseMessage GetHost(long id, string password)
         {
             HostPersistenceService hostPersistenceService = new HostPersistenceService();
             Host host = hostPersistenceService.GetHost(id);
@@ -38,7 +38,7 @@ namespace DirtBnBWebAPI.Controllers
                 response = Request.CreateResponse(HttpStatusCode.NotFound, "Host not found.");
                 return response;
             }
-            if (hostRequest.password != host.password)
+            if (password != host.password)
             {
                 response = Request.CreateResponse(HttpStatusCode.Unauthorized, "Incorrect password. Please try logging again.");
                 return response;

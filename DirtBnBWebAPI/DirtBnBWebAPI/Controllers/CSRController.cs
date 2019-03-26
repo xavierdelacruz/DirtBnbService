@@ -25,9 +25,9 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
-        [Route("api/csrs/{id}")]
+        [Route("api/csrs/{id}/{password}")]
         [HttpGet]
-        public HttpResponseMessage GetCSR(long id, [FromBody] CSR csrRequest)
+        public HttpResponseMessage GetCSR(long id, string password)
         {
             CSRPersistenceService csrPersistenceService = new CSRPersistenceService();
             CSR csr = csrPersistenceService.GetCSR(id);
@@ -38,7 +38,7 @@ namespace DirtBnBWebAPI.Controllers
                 return response;
             }
 
-            if (csrRequest.password != csr.password)
+            if (password != csr.password)
             {
                 response = Request.CreateResponse(HttpStatusCode.Unauthorized, "Incorrect password. Please try logging again.");
                 return response;

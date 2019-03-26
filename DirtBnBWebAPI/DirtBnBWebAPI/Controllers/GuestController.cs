@@ -26,9 +26,9 @@ namespace DirtBnBWebAPI.Controllers
             return response;
         }
 
-        [Route("api/guests/{id}")]
+        [Route("api/guests/{id}/{password}")]
         [HttpGet]
-        public HttpResponseMessage GetGuest(long id, [FromBody] Guest guestRequest)
+        public HttpResponseMessage GetGuest(long id, string password)
         {
             GuestPersistenceService guestPersistenceService = new GuestPersistenceService();
             Guest guest = guestPersistenceService.GetGuest(id);
@@ -39,7 +39,7 @@ namespace DirtBnBWebAPI.Controllers
                 return response;
             }
 
-            if (guestRequest.password != guest.password)
+            if (password != guest.password)
             {
                 response = Request.CreateResponse(HttpStatusCode.Unauthorized, "Incorrect password. Please try logging again.");
                 return response;
