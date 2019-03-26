@@ -149,6 +149,13 @@ namespace DirtBnBWebAPI.PersistenceServices
                 return selectNoBedSizeNoPricePerNight();
             }
 
+            if (includeAmenities.Value.Equals(false)
+            && includeBedSize.Value.Equals(false)
+            && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoAmenitiesNoBedSizeNoPricePerNight();
+            }
+
             else
             {
                 return GetAccommodations();
@@ -200,6 +207,13 @@ namespace DirtBnBWebAPI.PersistenceServices
                 return selectNoBedSizeNoPricePerNightHost(hostId);
             }
 
+            if (includeAmenities.Value.Equals(false)
+            && includeBedSize.Value.Equals(false)
+            && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoAmenitiesNoBedSizeNoPricePerNightHost(hostId);
+            }
+
             else
             {
                 return GetAccommodationsHost(hostId);
@@ -249,6 +263,13 @@ namespace DirtBnBWebAPI.PersistenceServices
                 && includePricePerNight.Value.Equals(false))
             {
                 return selectNoBedSizeNoPricePerNight(id);
+            }
+
+            if (includeAmenities.Value.Equals(false)
+            && includeBedSize.Value.Equals(false)
+            && includePricePerNight.Value.Equals(false))
+            {
+                return selectNoAmenitiesNoBedSizeNoPricePerNight(id);
             }
 
             else
@@ -797,6 +818,40 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
+        private object selectNoAmenitiesNoBedSizeNoPricePerNight()
+        {
+            try
+            {
+                List<NoAccommodationNoBedSizeNoPricePerNight> accommodations = new List<NoAccommodationNoBedSizeNoPricePerNight>();
+                string sqlCommandString = "SELECT p.AccommodationID, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode";
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(sqlCommandString, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    NoAccommodationNoBedSizeNoPricePerNight accommodation = new NoAccommodationNoBedSizeNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        houseNumber = mySQLReader.GetString(1),
+                        hostUserID = mySQLReader.GetInt32(2),
+                        postalCode = mySQLReader.GetString(3),
+                        city = mySQLReader.GetString(4),
+                        street = mySQLReader.GetString(5),
+                        province = mySQLReader.GetString(6)
+                    };
+                    accommodations.Add(accommodation);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
         private object selectNoAmenities(long id)
         {
             try
@@ -1014,6 +1069,41 @@ namespace DirtBnBWebAPI.PersistenceServices
                         city = mySQLReader.GetString(9),
                         street = mySQLReader.GetString(10),
                         province = mySQLReader.GetString(11)
+                    };
+                    mySQLReader.Close();
+                    return accommodation;
+                }
+                mySQLReader.Close();
+                return null;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoAmenitiesNoBedSizeNoPricePerNight(long id)
+        {
+            try
+            {
+                string sqlCommandString = "SELECT p.AccommodationID, p.HouseNumber, p.HostUserID, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode " +
+                "AND p.AccommodationID = " + id.ToString();
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(sqlCommandString, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                if (mySQLReader.Read())
+                {
+                    NoAccommodationNoBedSizeNoPricePerNight accommodation = new NoAccommodationNoBedSizeNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        houseNumber = mySQLReader.GetString(1),
+                        hostUserID = mySQLReader.GetInt32(2),
+                        postalCode = mySQLReader.GetString(3),
+                        city = mySQLReader.GetString(4),
+                        street = mySQLReader.GetString(5),
+                        province = mySQLReader.GetString(6)
                     };
                     mySQLReader.Close();
                     return accommodation;
@@ -1246,6 +1336,41 @@ namespace DirtBnBWebAPI.PersistenceServices
                         city = mySQLReader.GetString(9),
                         street = mySQLReader.GetString(10),
                         province = mySQLReader.GetString(11)
+                    };
+                    accommodations.Add(accommodation);
+                }
+                mySQLReader.Close();
+                return accommodations;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Accommodation call in AccomodationPersistenceService: " + ex);
+                return null;
+            }
+        }
+
+        private object selectNoAmenitiesNoBedSizeNoPricePerNightHost(long id)
+        {
+            try
+            {
+                List<NoAccommodationNoBedSizeNoPricePerNight> accommodations = new List<NoAccommodationNoBedSizeNoPricePerNight>();
+                string sqlCommandString = "SELECT p.AccommodationID, p.HostUserID, p.HouseNumber, p.PostalCode, c.City, c.Street, c.Province " +
+                "FROM " + PARENT_TABLE + " p , " + CHILD_TABLE + " c " +
+                "WHERE p.PostalCode = c.PostalCode " +
+                "AND p.HostUserID = " + id.ToString();
+                MySqlCommand sqlCommandNoAmenities = new MySqlCommand(sqlCommandString, sqlConnection);
+                MySqlDataReader mySQLReader = sqlCommandNoAmenities.ExecuteReader();
+                while (mySQLReader.Read())
+                {
+                    NoAccommodationNoBedSizeNoPricePerNight accommodation = new NoAccommodationNoBedSizeNoPricePerNight
+                    {
+                        accommodationID = mySQLReader.GetInt32(0),
+                        houseNumber = mySQLReader.GetString(1),
+                        hostUserID = mySQLReader.GetInt32(2),
+                        postalCode = mySQLReader.GetString(3),
+                        city = mySQLReader.GetString(4),
+                        street = mySQLReader.GetString(5),
+                        province = mySQLReader.GetString(6)
                     };
                     accommodations.Add(accommodation);
                 }

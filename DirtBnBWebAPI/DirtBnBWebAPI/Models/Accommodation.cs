@@ -105,6 +105,17 @@
         public string province { get; set; }
     }
 
+    public class NoAccommodationNoBedSizeNoPricePerNight
+    {
+        public long accommodationID { get; set; }
+        public string houseNumber { get; set; }
+        public int? hostUserID { get; set; }
+        public string postalCode { get; set; }
+        public string city { get; set; }
+        public string street { get; set; }
+        public string province { get; set; }
+    }
+
     public class AccommodationAvg
     {
         public string city { get; set; }
