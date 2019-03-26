@@ -40,7 +40,7 @@ namespace DirtBnBWebAPI.Controllers
 
         [Route("api/accommodations/retrieve/{id}")]
         [HttpPost]
-        public HttpResponseMessage GetAccommodationWith(long id, [FromBody] SelectSQLString sqlString)
+        public HttpResponseMessage GetAccommodationWithColumns(long id, [FromBody] SelectSQLString sqlString)
         {
             AccommodationPersistenceService accommodationPersistenceService = new AccommodationPersistenceService();
             if (sqlString != null)
@@ -111,7 +111,7 @@ namespace DirtBnBWebAPI.Controllers
         }
 
         [Route("api/accommodations/cityaverage")]
-        [HttpGet]
+        [HttpPost]
         public HttpResponseMessage GetAccommodationAveragesOfCity([FromBody]Accommodation accommodation)
         {
             HttpResponseMessage response;
