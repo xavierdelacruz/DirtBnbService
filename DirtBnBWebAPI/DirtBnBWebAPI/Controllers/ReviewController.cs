@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
-using System.Diagnostics;
 
 namespace DirtBnBWebAPI.Controllers
 {
