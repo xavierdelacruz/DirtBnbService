@@ -185,6 +185,7 @@
     <Compile Include="Models\Payment.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\Review.cs" />
+    <Compile Include="Models\SelectReviewOperator.cs" />
     <Compile Include="Models\SelectSQLString.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
