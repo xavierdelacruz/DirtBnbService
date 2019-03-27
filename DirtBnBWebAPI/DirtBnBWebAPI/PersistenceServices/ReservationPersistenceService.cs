@@ -98,11 +98,15 @@ namespace DirtBnBWebAPI.PersistenceServices
         // POST Reservation Call
         public long SaveReservation(Reservation reservation)
         {
+            TimeSpan diff = reservation.endDateTime - reservation.startDateTime;
+            int reservationLength = diff.Days + 1;
+            Debug.WriteLine("RESERVATION LENGTH IS: " + reservationLength);
+
             string childSqlCommandStringPeriod = "INSERT INTO " + CHILD_TABLE + " VALUES ('"
                 + reservation.startDateTime.ToString("yyyy'-'MM'-'dd") + "','"
                 + reservation.endDateTime.ToString("yyyy'-'MM'-'dd") + "','"
                 // TODO: add logic to calculate reservation length rather than requiring it be specified
-                + reservation.reservationLength + "')";
+                + reservationLength + "')";
             Debug.WriteLine(childSqlCommandStringPeriod);
 
             string sqlCommandString = "INSERT INTO " + PARENT_TABLE + " VALUES ("
@@ -118,7 +122,6 @@ namespace DirtBnBWebAPI.PersistenceServices
 
             try
             {
-                // TODO: maybe catch the case where the keys are the same, but the value is different, if not determining length programmatically
                 childSqlCommandPeriod.ExecuteNonQuery();
             }
             catch (MySqlException ex)

@@ -55,6 +55,9 @@ namespace DirtBnBWebAPI.Controllers
                 return response;
             }
             reservation.reservationID = id;
+            // just recalculate the reservation length, super smelly lmao
+            TimeSpan diff = reservation.endDateTime - reservation.startDateTime;
+            reservation.reservationLength = diff.Days + 1;
             response = Request.CreateResponse(HttpStatusCode.Created, reservation);
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("reservations/{0}", id));
             return response;
