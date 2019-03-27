@@ -40,7 +40,7 @@ namespace DirtBnBWebAPI.Controllers
             response = Request.CreateResponse(HttpStatusCode.OK, Reviews);
             return response;
         }
-        
+
 
         [Route("api/Reviews/{id}")]
         [HttpGet]
@@ -74,7 +74,7 @@ namespace DirtBnBWebAPI.Controllers
 
             if (string.IsNullOrEmpty(Review.content))
             {
-                response = Request.CreateResponse(HttpStatusCode.BadRequest, 
+                response = Request.CreateResponse(HttpStatusCode.BadRequest,
                     "Content is mandatory. Please try again.");
                 return response;
             }
@@ -100,5 +100,33 @@ namespace DirtBnBWebAPI.Controllers
             response.Headers.Location = new Uri(Request.RequestUri, string.Format("Reviews/{0}", id));
             return response;
         }
+
+        [Route("api/Reviews/selectReviewWithRating")]
+        [HttpPost]
+        public HttpResponseMessage selectReview([FromBody]SelectReviewOperator body)
+        {
+            ReviewPersistenceService ReviewPersistenceService = new ReviewPersistenceService();
+            HttpResponseMessage response;
+
+            if ((body.op != ">") && (body.op != "<") && (body.op != "="))
+            {
+                response = Request.CreateResponse(HttpStatusCode.BadRequest,
+                    "op field of body must be one of `>`, `<`, or `=`. Please try again.");
+                return response;
+            }
+
+            else
+            {
+                var Reviews = ReviewPersistenceService.GetSelectReviews(body.op, body.rating);
+                if (Reviews == null || Reviews.Count.Equals(0))
+                {
+                    response = Request.CreateResponse(HttpStatusCode.NotFound, "No Reviews found.");
+                    return response;
+                }
+                response = Request.CreateResponse(HttpStatusCode.OK, Reviews);
+                return response;
+            }
+        }
     }
 }
+

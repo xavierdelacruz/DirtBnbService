@@ -143,6 +143,38 @@ namespace DirtBnBWebAPI.PersistenceServices
             }
         }
 
+        public List<Review> GetSelectReviews(String op, int val)
+        {
+            MySqlDataReader mySQLReader = null;
+            List<Review> Reviews = new List<Review>();
+
+            string slqCommandString = "SELECT * FROM Reviews WHERE rating " + op + " " + val.ToString();
+            MySqlCommand sqlCommand = new MySqlCommand(slqCommandString, sqlConnection);
+            try
+            {
+                mySQLReader = sqlCommand.ExecuteReader();
+
+                while (mySQLReader.Read())
+                {
+                    Review Review = new Review();
+                    Review.reviewID = mySQLReader.GetInt32(0);
+                    Review.accommodationID = mySQLReader.GetInt32(1);
+                    Review.reservationID = mySQLReader.GetInt32(2);
+                    Review.content = mySQLReader.GetString(3);
+                    Review.rating = mySQLReader.GetInt32(4);
+                    Reviews.Add(Review);
+                }
+                mySQLReader.Close();
+                return Reviews;
+            }
+            catch (MySqlException ex)
+            {
+                Console.WriteLine("Found an error when performing a GET Reviews call in ReviewPersistenceService(GetReviews): " + ex);
+                Debug.WriteLine(ex);
+                return null;
+            }
+        }
+
         // DELETE Review
         // Commented out as we decided not to allow deleting reviews
         //public bool DeleteReview(long id)
