@@ -2,12 +2,14 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
 using MySql.Data.MySqlClient;
 
 namespace DirtBnBWebAPI.Controllers
 {
+    [EnableCors(origins: "http://localhost:64597/", headers: "*", methods: "*")]
     public class HostController : ApiController
     {
         [Route("api/hosts")]

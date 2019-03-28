@@ -18,7 +18,7 @@ namespace DirtBnBWebAPI.PersistenceServices
 
         public void Initialize()
         {
-            var connectionString = "server=127.0.0.1;uid=root;pwd=304project;database=304presentation";
+            var connectionString = "server=127.0.0.1;uid=root;pwd=304project;database=304project";
             try
             {
                 sqlConnection = new MySql.Data.MySqlClient.MySqlConnection();
