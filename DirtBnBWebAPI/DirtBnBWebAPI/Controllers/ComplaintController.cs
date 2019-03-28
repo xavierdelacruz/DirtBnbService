@@ -7,6 +7,7 @@ using DirtBnBWebAPI.PersistenceServices;
 
 namespace DirtBnBWebAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ComplaintController : ApiController
     {
         [Route("api/complaints")]

@@ -8,6 +8,7 @@ using MySql.Data.MySqlClient;
 
 namespace DirtBnBWebAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class GuestController : ApiController
     {
         [Route("api/guests")]
