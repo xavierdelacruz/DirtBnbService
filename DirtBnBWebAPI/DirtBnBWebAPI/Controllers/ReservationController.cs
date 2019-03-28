@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using DirtBnBWebAPI.Models;
+using System.Web.Http.Cors;
 using DirtBnBWebAPI.PersistenceServices;
 
 namespace DirtBnBWebAPI.Controllers

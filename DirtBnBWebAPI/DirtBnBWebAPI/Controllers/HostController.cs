@@ -6,6 +6,7 @@ using System.Web.Http.Cors;
 using DirtBnBWebAPI.Models;
 using DirtBnBWebAPI.PersistenceServices;
 using MySql.Data.MySqlClient;
+using System.Web.Http.Cors;
 
 namespace DirtBnBWebAPI.Controllers
 {
